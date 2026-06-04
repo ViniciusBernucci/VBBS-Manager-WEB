@@ -1,0 +1,15 @@
+@import "primeicons/primeicons.css";
+@import "primeflex/primeflex.css";
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: var(--p-font-family, 'Inter', sans-serif);
+  background-color: var(--p-surface-ground);
+  color: var(--p-text-color);
+}

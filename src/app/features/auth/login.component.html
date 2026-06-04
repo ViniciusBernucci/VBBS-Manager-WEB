@@ -1,0 +1,49 @@
+<div class="login-wrapper">
+  <p-card styleClass="login-card">
+    <ng-template pTemplate="header">
+      <div class="login-header">
+        <h2>VBBS Manager</h2>
+        <p>Faça login para continuar</p>
+      </div>
+    </ng-template>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
+      @if (errorMessage()) {
+        <p-message severity="error" [text]="errorMessage()!" styleClass="w-full mb-3" />
+      }
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input
+          pInputText
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="seu@email.com"
+          class="w-full"
+        />
+      </div>
+
+      <div class="field">
+        <label for="password">Senha</label>
+        <p-password
+          inputId="password"
+          formControlName="password"
+          placeholder="••••••••"
+          [feedback]="false"
+          [toggleMask]="true"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        />
+      </div>
+
+      <p-button
+        type="submit"
+        label="Entrar"
+        [loading]="loading()"
+        [disabled]="form.invalid"
+        styleClass="w-full mt-2"
+      />
+    </form>
+  </p-card>
+</div>
