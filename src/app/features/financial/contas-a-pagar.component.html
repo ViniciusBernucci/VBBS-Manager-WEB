@@ -1,0 +1,195 @@
+<p-toast />
+
+<!-- Drawer cadastro -->
+<p-drawer [header]="drawerTitle()" [(visible)]="drawerVisible" position="right" [style]="drawerStyle" (onHide)="onDrawerHide()">
+  <div class="drawer-form">
+    <div class="form-field">
+      <label>Nome</label>
+      <input pInputText [(ngModel)]="form.name" placeholder="Ex: Meta Ads" class="w-full" />
+    </div>
+    <div class="form-field">
+      <label>Categoria</label>
+      <p-select [(ngModel)]="form.category" [options]="categoryOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
+    </div>
+    <div class="form-field">
+      <label>Valor mensal (R$)</label>
+      <p-inputnumber [(ngModel)]="form.amount" mode="currency" currency="BRL" locale="pt-BR" [min]="0" styleClass="w-full" />
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <div class="drawer-footer">
+      <p-button label="Cancelar" severity="secondary" (onClick)="drawerVisible.set(false)" />
+      <p-button label="Salvar" icon="pi pi-check" (onClick)="save()" [loading]="saving()" />
+    </div>
+  </ng-template>
+</p-drawer>
+
+<!-- Pay dialog -->
+<p-dialog
+  [header]="'Registrar Pagamento — ' + (payingExpense()?.name ?? '')"
+  [(visible)]="payDialogVisible"
+  [modal]="true"
+  [style]="{ width: '380px' }"
+>
+  <div class="pay-form">
+    <div class="form-field">
+      <label>Valor pago (R$)</label>
+      <p-inputnumber [(ngModel)]="payForm.amount" mode="currency" currency="BRL" locale="pt-BR" [min]="0" styleClass="w-full" />
+    </div>
+    <div class="form-field">
+      <label>Data do pagamento</label>
+      <p-datepicker [(ngModel)]="payForm.date" dateFormat="dd/mm/yy" [showIcon]="true" styleClass="w-full" />
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <div class="drawer-footer">
+      <p-button label="Cancelar" severity="secondary" (onClick)="payDialogVisible.set(false)" />
+      <p-button label="Confirmar Pagamento" icon="pi pi-check" (onClick)="confirmPay()" [loading]="saving()" />
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Page -->
+<div class="page">
+  <p-tabs value="monthly">
+
+    <p-tablist>
+      <p-tab value="monthly">
+        Controle Mensal
+        @if (pendingCount() > 0) {
+          <span class="pending-badge">{{ pendingCount() }}</span>
+        }
+      </p-tab>
+      <p-tab value="list">Gastos Fixos</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+
+      <!-- ── Controle Mensal ─────────────────────────────────────────────── -->
+      <p-tabpanel value="monthly">
+        <div class="monthly-header">
+          <div class="month-nav">
+            <p-button icon="pi pi-chevron-left" [text]="true" (onClick)="prevMonthly()" />
+            <span class="month-label">{{ monthlyLabel() }}</span>
+            <p-button icon="pi pi-chevron-right" [text]="true" (onClick)="nextMonthly()" />
+          </div>
+
+          <div class="monthly-summary">
+            <div class="ms-card paid">
+              <span class="ms-label">Pagas</span>
+              <span class="ms-value">{{ brl(totalPaid()) }}</span>
+            </div>
+            <div class="ms-card pending">
+              <span class="ms-label">Pendentes</span>
+              <span class="ms-value">{{ brl(totalPending()) }}</span>
+            </div>
+          </div>
+        </div>
+
+        @if (monthlyLoading()) {
+          <div class="loading-state"><i class="pi pi-spin pi-spinner"></i></div>
+        } @else if (monthlyItems().length === 0) {
+          <div class="empty-state">
+            <i class="pi pi-check-circle"></i>
+            <p>Nenhum gasto fixo ativo. Cadastre na aba "Gastos Fixos".</p>
+          </div>
+        } @else {
+          <p-table [value]="monthlyItems()" styleClass="cp-table">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th class="col-amount">Orçado</th>
+                <th class="col-amount">Pago</th>
+                <th class="col-status">Status</th>
+                <th class="col-actions"></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+              <tr>
+                <td>{{ item.name }}</td>
+                <td><span class="cat-label">{{ item.categoryLabel }}</span></td>
+                <td class="col-amount muted">{{ brl(item.budgetedAmount) }}</td>
+                <td class="col-amount" [class.income-text]="item.isPaid">
+                  {{ item.isPaid ? brl(item.paidAmount ?? item.budgetedAmount) : '—' }}
+                </td>
+                <td class="col-status">
+                  <p-tag
+                    [value]="item.isPaid ? 'Pago' : 'Pendente'"
+                    [severity]="item.isPaid ? 'success' : 'warn'"
+                  />
+                </td>
+                <td class="col-actions">
+                  @if (item.isPaid) {
+                    <div class="paid-info">
+                      <span class="paid-date">{{ formatDate(item.paidDate) }}</span>
+                      <p-button icon="pi pi-undo" pTooltip="Desfazer pagamento" tooltipPosition="top"
+                        [text]="true" size="small" severity="danger" (onClick)="unpay(item)" />
+                    </div>
+                  } @else {
+                    <p-button label="Pagar" icon="pi pi-check" size="small"
+                      severity="success" (onClick)="openPayDialog(item)" />
+                  }
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        }
+      </p-tabpanel>
+
+      <!-- ── Gastos Fixos (Cadastro) ─────────────────────────────────────── -->
+      <p-tabpanel value="list">
+        <div class="list-header">
+          <p-button label="Novo Gasto Fixo" icon="pi pi-plus" (onClick)="openCreate()" />
+        </div>
+
+        @if (loading()) {
+          <div class="loading-state"><i class="pi pi-spin pi-spinner"></i></div>
+        } @else if (expenses().length === 0) {
+          <div class="empty-state">
+            <i class="pi pi-receipt"></i>
+            <p>Nenhum gasto fixo cadastrado.</p>
+            <p-button label="Cadastrar primeiro gasto" icon="pi pi-plus" [text]="true" (onClick)="openCreate()" />
+          </div>
+        } @else {
+          <div class="total-bar">
+            <span>Total ativo por mês</span>
+            <span class="total-value">{{ brl(totalActive()) }}</span>
+          </div>
+
+          <p-table [value]="expenses()" styleClass="cp-table">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th class="col-amount">Valor / mês</th>
+                <th class="col-status">Status</th>
+                <th class="col-actions"></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-e>
+              <tr [class.inactive-row]="!e.isActive">
+                <td>{{ e.name }}</td>
+                <td><span class="cat-label">{{ e.categoryLabel }}</span></td>
+                <td class="col-amount expense-text">{{ brl(e.amount) }}</td>
+                <td class="col-status">
+                  <p-tag [value]="e.isActive ? 'Ativo' : 'Inativo'" [severity]="e.isActive ? 'success' : 'secondary'" />
+                </td>
+                <td class="col-actions">
+                  <p-button [icon]="e.isActive ? 'pi pi-pause' : 'pi pi-play'"
+                    [pTooltip]="e.isActive ? 'Pausar' : 'Ativar'" tooltipPosition="top"
+                    [text]="true" size="small" [severity]="e.isActive ? 'warn' : 'success'" (onClick)="toggle(e)" />
+                  <p-button icon="pi pi-pencil" pTooltip="Editar" tooltipPosition="top"
+                    [text]="true" size="small" (onClick)="openEdit(e)" />
+                  <p-button icon="pi pi-trash" pTooltip="Excluir" tooltipPosition="top"
+                    [text]="true" size="small" severity="danger" (onClick)="delete(e.id)" />
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        }
+      </p-tabpanel>
+
+    </p-tabpanels>
+  </p-tabs>
+</div>

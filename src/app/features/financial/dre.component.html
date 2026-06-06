@@ -1,0 +1,108 @@
+<p-toast />
+
+<div class="page">
+  <div class="dre-header">
+    <div class="month-nav">
+      <p-button icon="pi pi-chevron-left" [text]="true" (onClick)="prevMonth()" />
+      <span class="month-label">{{ monthLabel() }}</span>
+      <p-button icon="pi pi-chevron-right" [text]="true" (onClick)="nextMonth()" />
+    </div>
+
+    @if (summary(); as s) {
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <span class="kpi-label">Faturamento bruto</span>
+          <span class="kpi-value">{{ brl(s.grossRevenue) }}</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Receita líquida</span>
+          <span class="kpi-value">{{ brl(s.netRevenue) }}</span>
+        </div>
+        <div class="kpi-card" [class.positive]="s.operationalProfit > 0" [class.negative]="s.operationalProfit <= 0">
+          <span class="kpi-label">Lucro operacional</span>
+          <span class="kpi-value">{{ brl(s.operationalProfit) }}</span>
+          <span class="kpi-note">{{ s.marginPercentage.toFixed(1) }}% do faturamento</span>
+        </div>
+        <div class="kpi-card highlight">
+          <span class="kpi-label">Projeção do mês</span>
+          <span class="kpi-value">{{ brl(s.monthProjection) }}</span>
+          <span class="kpi-note">baseada no ritmo atual</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state"><i class="pi pi-spin pi-spinner"></i> Carregando DRE...</div>
+  } @else if (!dre()?.hasData) {
+    <div class="empty-state">
+      <i class="pi pi-chart-line"></i>
+      <p>Nenhum lançamento financeiro neste mês.</p>
+      <p class="hint">Cadastre entradas e saídas no Fluxo de Caixa ou marque pagamentos em Contas a Pagar.</p>
+    </div>
+  } @else {
+    <div class="alert-bar">
+      <i class="pi pi-info-circle"></i>
+      <div>
+        <strong>DRE dinâmico</strong>
+        <p>Receitas e despesas vêm dos lançamentos reais. Deduções de plataforma e impostos são estimadas com base na configuração de Planejamento.</p>
+      </div>
+    </div>
+
+    <div class="dre-table-wrap">
+      <table class="dre-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Valor (R$)</th>
+            <th>% Fat.</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (line of dre()!.lines; track line.key) {
+            @if (line.kind === 'section') {
+              <tr class="dre-section">
+                <td colspan="3">{{ line.label }}</td>
+              </tr>
+            } @else {
+              <tr [class]="rowClass(line)">
+                <td>
+                  {{ line.label }}
+                  @if (line.isEstimated) {
+                    <p-tag value="estimado" severity="secondary" styleClass="est-tag" />
+                  }
+                </td>
+                <td class="mono" [class.neg]="line.amount < 0" [class.pos]="line.key === 'operational-profit' && line.amount > 0">
+                  {{ line.amount < 0 ? brl(line.amount) : brl(line.amount) }}
+                </td>
+                <td class="mono" [class.warn]="line.kind === 'deduction'">
+                  {{ pct(line.percentOfGross) }}
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Evolução semanal</div>
+        <div class="chart-container">
+          @if (lineChartData(); as chart) {
+            <p-chart type="line" [data]="chart" [options]="lineChartOptions" height="240" />
+          }
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Composição do faturamento</div>
+        <div class="chart-container">
+          @if (donutChartData(); as chart) {
+            <p-chart type="doughnut" [data]="chart" [options]="donutChartOptions" height="240" />
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

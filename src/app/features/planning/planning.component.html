@@ -1,0 +1,622 @@
+<p-toast />
+
+<!-- Page Header -->
+<div class="planning-header">
+  <div class="header-left">
+    <div class="eyebrow">Central de Estratégia</div>
+    <h1>Planejamento do Negócio</h1>
+    <p>Produção Musical · Meta: R$15-30k de lucro mensal em 12 semanas</p>
+  </div>
+  <div class="header-right">
+    <div class="status-pill attention">
+      <i class="pi pi-exclamation-triangle" style="font-size: 11px"></i> ATENÇÃO
+    </div>
+    <div class="status-pill target">
+      <i class="pi pi-bullseye" style="font-size: 11px"></i> Meta: R$15-30k lucro
+    </div>
+    <p-button
+      label="Editar Metas"
+      icon="pi pi-sliders-h"
+      (onClick)="openDrawer()"
+      [loading]="loading()"
+    />
+  </div>
+</div>
+
+<!-- Tabs -->
+<p-tabs value="0">
+  <p-tablist>
+    <p-tab value="0"><i class="pi pi-gauge mr-1"></i> Overview</p-tab>
+    <p-tab value="1"><i class="pi pi-file-invoice mr-1"></i> DRE & KPIs</p-tab>
+    <p-tab value="2"><i class="pi pi-map-marker mr-1"></i> Plano 12 Semanas</p-tab>
+    <p-tab value="3"><i class="pi pi-th-large mr-1"></i> Esteira de Produtos</p-tab>
+    <p-tab value="4"><i class="pi pi-chart-pie mr-1"></i> Tráfego</p-tab>
+    <p-tab value="5"><i class="pi pi-sparkles mr-1"></i> Criativos</p-tab>
+    <p-tab value="6"><i class="pi pi-chart-line mr-1"></i> Cenários</p-tab>
+    <p-tab value="7"><i class="pi pi-sliders-v mr-1"></i> Métricas</p-tab>
+    <p-tab value="8"><i class="pi pi-shield mr-1"></i> Regras de Ouro</p-tab>
+  </p-tablist>
+
+  <p-tabpanels>
+
+    <!-- ═══ TAB 0: OVERVIEW ═══ -->
+    <p-tabpanel value="0">
+      <div class="tab-content">
+        <div class="alert-bar red">
+          <i class="pi pi-exclamation-triangle"></i>
+          <div>
+            <strong>Gargalo crítico: margem de 1,6%</strong>
+            <p>Com faturamento de ~R$12.370/mês e lucro de apenas ~R$198, qualquer variação de CPA ou queda de conversão gera prejuízo imediato.</p>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          @if (financialConfig(); as cfg) {
+            <div class="kpi-card orange">
+              <div class="kpi-label">Faturamento bruto/mês</div>
+              <div class="kpi-val">{{ brl(cfg.monthlyGrossRevenue) }}</div>
+              <div class="kpi-note">Configurável em Editar Metas</div>
+            </div>
+            @if (dre(); as d) {
+              <div class="kpi-card" [class]="d.operationalProfit < 500 ? 'red' : 'green'">
+                <div class="kpi-label">Lucro operacional/mês</div>
+                <div class="kpi-val">{{ brl(d.operationalProfit) }}</div>
+                <div class="kpi-note">margem de {{ d.marginPercent.toFixed(1) }}%</div>
+              </div>
+              <div class="kpi-card orange">
+                <div class="kpi-label">ROAS atual</div>
+                <div class="kpi-val">{{ (cfg.monthlyGrossRevenue / cfg.monthlyAdSpend).toFixed(2) }}x</div>
+                <div class="kpi-note">meta: ≥ 2,0x para saúde</div>
+              </div>
+            }
+          } @else {
+            <div class="kpi-card orange"><div class="kpi-label">Carregando...</div></div>
+          }
+          @for (goal of (goalsByCategory().get('WeeklyAlert') ?? []); track goal.id) {
+            @if (goal.key === 'cpa_general') {
+              <div class="kpi-card" [class]="goal.currentValue && goal.currentValue > goal.targetValue ? 'red' : 'orange'">
+                <div class="kpi-label">CPA atual</div>
+                <div class="kpi-val">{{ formatValue(goal.currentValue, goal.unit) }}</div>
+                <div class="kpi-note">meta: ≤ {{ formatValue(goal.targetValue, goal.unit) }}</div>
+              </div>
+            }
+          }
+        </div>
+
+        <div class="section-title">3 alavancas para R$15-30k de lucro</div>
+        <div class="info-grid-3">
+          <div class="info-card green-border">
+            <h3><i class="pi pi-arrow-up" style="color:var(--p-green-400)"></i> Alavanca 1 — Ticket médio <span class="tag-green">+36%</span></h3>
+            <p>De R$53 → R$72 com 3º bump (Mixagem de Voz R$29,90), teste de preço R$79,90 e downsell Guia dos Plugins. Cada R$1 no ticket = 3 vendas a menos necessárias.</p>
+          </div>
+          <div class="info-card blue-border">
+            <h3><i class="pi pi-crosshairs" style="color:var(--p-blue-400)"></i> Alavanca 2 — Reduzir CPA <span class="tag-blue">-27%</span></h3>
+            <p>De R$52 → R$38 via reestruturação de campanhas (3 tipos), remarketing segmentado por temperatura e rotina semanal de criativos com laboratório de testes.</p>
+          </div>
+          <div class="info-card purple-border">
+            <h3><i class="pi pi-envelope" style="color:var(--p-purple-400)"></i> Alavanca 3 — Canal orgânico <span class="tag-purple">CAC 0</span></h3>
+            <p>Isca digital captura leads → sequência de 7 emails vende sem custo de tráfego. Meta: 20-25 vendas/mês extras que contam para o piso da Hotmart.</p>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-title">Projeção de lucro — 12 semanas (3 cenários)</div>
+          <div class="chart-container">
+            <p-chart type="line" [data]="overviewChartData()" [options]="lineChartOptions" height="220" />
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card green"><div class="kpi-label">Lucro estimado mês 3 (realista)</div><div class="kpi-val green-text">R$5.800</div><div class="kpi-note">ticket R$68, CPA R$38</div></div>
+          <div class="kpi-card green"><div class="kpi-label">Ticket médio meta (S12)</div><div class="kpi-val green-text">R$72</div><div class="kpi-note">vs R$53,32 atual (+35%)</div></div>
+          <div class="kpi-card gold"><div class="kpi-label">Reserva de caixa (S12)</div><div class="kpi-val gold-text">R$12k+</div><div class="kpi-note">5 semanas de tráfego garantidas</div></div>
+          <div class="kpi-card green"><div class="kpi-label">Margem meta</div><div class="kpi-val green-text">28%</div><div class="kpi-note">vs 1,6% atual</div></div>
+        </div>
+      </div>
+    </p-tabpanel>
+
+    <!-- ═══ TAB 1: DRE ═══ -->
+    <p-tabpanel value="1">
+      <div class="tab-content">
+        <div class="alert-bar gold">
+          <i class="pi pi-info-circle"></i>
+          <div>
+            <strong>Taxa Hotmart: 9% (negociada)</strong>
+            <p>A taxa de 9% está condicionada a faturamento mínimo de R$10.000/mês. Todos os cálculos usam a configuração financeira definida em "Editar Metas".</p>
+          </div>
+        </div>
+
+        @if (dre(); as d) {
+          <div class="dre-table-wrap">
+            <table class="dre-table">
+              <thead>
+                <tr><th>Item</th><th>Valor (R$)</th><th>% Fat.</th></tr>
+              </thead>
+              <tbody>
+                <tr class="dre-total-top"><td><strong>Faturamento bruto mensal</strong></td><td class="mono">{{ brl(d.grossRevenue) }}</td><td class="mono">100%</td></tr>
+                <tr class="dre-section"><td colspan="3">Deduções da plataforma</td></tr>
+                <tr><td>&nbsp;&nbsp;(−) Taxa Hotmart</td><td class="mono neg">{{ brl(-d.hotmartFee) }}</td><td class="mono warn">{{ (d.hotmartFee/d.grossRevenue*100).toFixed(1) }}%</td></tr>
+                <tr><td>&nbsp;&nbsp;(−) Antecipação cartão</td><td class="mono neg">{{ brl(-d.installmentFee) }}</td><td class="mono">{{ (d.installmentFee/d.grossRevenue*100).toFixed(1) }}%</td></tr>
+                <tr><td>&nbsp;&nbsp;(−) Impostos federais</td><td class="mono neg">{{ brl(-d.federalTax) }}</td><td class="mono">{{ (d.federalTax/d.grossRevenue*100).toFixed(1) }}%</td></tr>
+                <tr><td>&nbsp;&nbsp;(−) Reembolsos</td><td class="mono neg">{{ brl(-d.refundCost) }}</td><td class="mono">{{ (d.refundCost/d.grossRevenue*100).toFixed(1) }}%</td></tr>
+                <tr class="dre-subtotal"><td>= Receita líquida</td><td class="mono">{{ brl(d.netRevenue) }}</td><td class="mono">{{ (d.netRevenue/d.grossRevenue*100).toFixed(1) }}%</td></tr>
+                <tr class="dre-section"><td colspan="3">Custos variáveis</td></tr>
+                <tr><td>&nbsp;&nbsp;(−) Tráfego pago + imp. Meta</td><td class="mono neg">{{ brl(-d.adSpendWithTax) }}</td><td class="mono warn">{{ (d.adSpendWithTax/d.grossRevenue*100).toFixed(1) }}%</td></tr>
+                <tr class="dre-subtotal"><td>= Margem após tráfego</td><td class="mono">{{ brl(d.marginAfterTraffic) }}</td><td class="mono">{{ (d.marginAfterTraffic/d.grossRevenue*100).toFixed(1) }}%</td></tr>
+                <tr class="dre-section"><td colspan="3">Custos fixos</td></tr>
+                <tr><td>&nbsp;&nbsp;(−) Custos fixos (contab. + NF + tools)</td><td class="mono neg">{{ brl(-d.fixedCosts) }}</td><td class="mono">{{ (d.fixedCosts/d.grossRevenue*100).toFixed(1) }}%</td></tr>
+                <tr class="dre-total" [class.positive]="d.operationalProfit > 0" [class.negative]="d.operationalProfit <= 0">
+                  <td>= Lucro operacional</td>
+                  <td class="mono" [class]="d.operationalProfit > 0 ? 'pos' : 'neg'">{{ brl(d.operationalProfit) }}</td>
+                  <td class="mono" [class]="d.marginPercent > 10 ? 'pos' : 'warn'">{{ d.marginPercent.toFixed(1) }}%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-title">Composição do faturamento — destino de cada R$1</div>
+            <div class="chart-container" style="max-height: 280px;">
+              @if (dreChartData(); as chartData) {
+                <p-chart type="doughnut" [data]="chartData" [options]="donutChartOptions" height="260" />
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="loading-state"><i class="pi pi-spin pi-spinner"></i> Carregando DRE...</div>
+        }
+      </div>
+    </p-tabpanel>
+
+    <!-- ═══ TAB 2: PLANO 12 SEMANAS ═══ -->
+    <p-tabpanel value="2">
+      <div class="tab-content">
+        <div class="phase-header red-phase">
+          <i class="pi pi-wrench"></i> Fase 1 — Otimização sem cortar volume (S1-S4) · R$7.000/mês tráfego
+        </div>
+
+        @for (week of phase1Weeks; track week.num) {
+          <div class="week-item">
+            <div class="week-num">S{{ week.num }}</div>
+            <div class="week-body">
+              <h4 [class.milestone]="week.milestone">{{ week.title }}</h4>
+              <div class="week-metrics">
+                @for (m of week.metrics; track m.label) {
+                  <div class="week-metric">
+                    <div class="metric-label">{{ m.label }}</div>
+                    <div class="metric-val" [class]="m.color">{{ m.value }}</div>
+                  </div>
+                }
+              </div>
+              <div class="week-actions">
+                @for (a of week.actions; track a) {
+                  <div><i class="pi pi-arrow-right"></i> <span [innerHTML]="safe(a)"></span></div>
+                }
+              </div>
+              <div class="week-reserve"><i class="pi pi-piggy-bank"></i> {{ week.reserve }}</div>
+            </div>
+          </div>
+        }
+
+        <div class="phase-header green-phase">
+          <i class="pi pi-leaf"></i> Fase 2 — Margem cresce, reserva se forma (S5-S8) · R$7.000-8.000/mês
+        </div>
+        @for (week of phase2Weeks; track week.num) {
+          <div class="week-item">
+            <div class="week-num">S{{ week.num }}</div>
+            <div class="week-body">
+              <h4 [class.milestone]="week.milestone">{{ week.title }}</h4>
+              <div class="week-metrics">
+                @for (m of week.metrics; track m.label) {
+                  <div class="week-metric">
+                    <div class="metric-label">{{ m.label }}</div>
+                    <div class="metric-val" [class]="m.color">{{ m.value }}</div>
+                  </div>
+                }
+              </div>
+              <div class="week-actions">
+                @for (a of week.actions; track a) {
+                  <div><i class="pi pi-arrow-right"></i> <span [innerHTML]="safe(a)"></span></div>
+                }
+              </div>
+              <div class="week-reserve"><i class="pi pi-piggy-bank"></i> {{ week.reserve }}</div>
+            </div>
+          </div>
+        }
+
+        <div class="phase-header purple-phase">
+          <i class="pi pi-send"></i> Fase 3 — Escala com segurança (S9-S12) · R$8.500-10.000/mês
+        </div>
+        @for (week of phase3Weeks; track week.num) {
+          <div class="week-item">
+            <div class="week-num">S{{ week.num }}</div>
+            <div class="week-body">
+              <h4 [class.milestone]="week.milestone">{{ week.title }}</h4>
+              <div class="week-metrics">
+                @for (m of week.metrics; track m.label) {
+                  <div class="week-metric">
+                    <div class="metric-label">{{ m.label }}</div>
+                    <div class="metric-val" [class]="m.color">{{ m.value }}</div>
+                  </div>
+                }
+              </div>
+              <div class="week-actions">
+                @for (a of week.actions; track a) {
+                  <div><i class="pi pi-arrow-right"></i> <span [innerHTML]="safe(a)"></span></div>
+                }
+              </div>
+              <div class="week-reserve"><i class="pi pi-piggy-bank"></i> {{ week.reserve }}</div>
+            </div>
+          </div>
+        }
+      </div>
+    </p-tabpanel>
+
+    <!-- ═══ TAB 3: ESTEIRA DE PRODUTOS ═══ -->
+    <p-tabpanel value="3">
+      <div class="tab-content">
+        <div class="alert-bar gold">
+          <i class="pi pi-chart-line"></i>
+          <div>
+            <strong>O impacto do ticket no lucro</strong>
+            <p>De R$53 → R$72 (+R$19/venda) com 232 vendas/mês = +R$4.408/mês de lucro extra sem gastar 1 real a mais em tráfego.</p>
+          </div>
+        </div>
+
+        <div class="product-grid">
+          @for (p of products; track p.name) {
+            <div class="product-card">
+              <span class="pc-status" [class]="p.statusClass">{{ p.status }}</span>
+              <div class="pc-type">{{ p.type }}</div>
+              <div class="pc-name">{{ p.name }}</div>
+              <div class="pc-price">{{ p.price }}</div>
+              <div class="pc-impact">{{ p.impact }}</div>
+              <div class="pc-when"><i class="pi pi-calendar"></i> {{ p.when }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    </p-tabpanel>
+
+    <!-- ═══ TAB 4: TRÁFEGO ═══ -->
+    <p-tabpanel value="4">
+      <div class="tab-content">
+        <div class="alert-bar blue">
+          <i class="pi pi-lightbulb"></i>
+          <div>
+            <strong>Lógica da evolução</strong>
+            <p><strong>Fase 1:</strong> mais remarketing (33%). <strong>Fase 2:</strong> público frio sobe (57%) — criativos validados. <strong>Fase 3:</strong> público frio domina (60%) com scale. Lab nunca abaixo de 13%.</p>
+          </div>
+        </div>
+
+        @for (phase of trafficPhases; track phase.title) {
+          <div class="traffic-phase">
+            <h4 [innerHTML]="safe(phase.title)"></h4>
+            <div class="traffic-alloc-grid">
+              @for (alloc of phase.allocs; track alloc.label) {
+                <div class="alloc-card">
+                  <div class="alloc-label">{{ alloc.label }}</div>
+                  <div class="alloc-total">{{ alloc.total }}</div>
+                  <div class="bar-row">
+                    @for (seg of alloc.segments; track seg.label) {
+                      <div class="bar-seg" [style.width]="seg.pct + '%'" [style.background]="seg.color">
+                        {{ seg.pct }}%
+                      </div>
+                    }
+                  </div>
+                  <div class="breakdown">
+                    @for (seg of alloc.segments; track seg.label) {
+                      <div><span class="seg-dot" [style.background]="seg.color"></span>{{ seg.label }}: <strong>{{ seg.value }}</strong></div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="alert-bar red">
+          <i class="pi pi-shield"></i>
+          <div>
+            <strong>Regra de segurança — piso contratual</strong>
+            <p>Toda sexta-feira: vendas da semana × ticket médio × 4 ≥ R$10.000? Se não, na segunda-feira reduza isca e produtos secundários para 5% e realoque tudo para o Reaper Total.</p>
+          </div>
+        </div>
+      </div>
+    </p-tabpanel>
+
+    <!-- ═══ TAB 5: CRIATIVOS ═══ -->
+    <p-tabpanel value="5">
+      <div class="tab-content">
+        <div class="info-grid-3">
+          <div class="info-card orange-border">
+            <h3 style="color:#F5904A"><i class="pi pi-fire"></i> Camp. 1 — Público Frio <span class="badge-orange">56%</span></h3>
+            <p>CBO com 3-4 conjuntos. Interesses amplos: produção musical, DAW, home studio, beats. <strong>Só criativos já validados no lab</strong>. Objetivo: compra. R$700/semana.</p>
+          </div>
+          <div class="info-card green-border">
+            <h3 style="color:#3ECFA0"><i class="pi pi-magnet"></i> Camp. 2 — Remarketing <span class="badge-green">30%</span></h3>
+            <p>ABO com 3 conjuntos por temperatura: checkout quente (CPA R$20-25), 75% vídeo (R$30-35), engajamento (R$35-40). R$375/semana.</p>
+          </div>
+          <div class="info-card purple-border">
+            <h3 style="color:#9B7FE8"><i class="pi pi-flask"></i> Camp. 3 — Laboratório <span class="badge-purple">14%</span></h3>
+            <p>ABO, R$25/dia por criativo. Testar 2 novos/semana. CPA &lt; R$40 com 2+ vendas em 3 dias = promover para Camp. 1. <strong>Nunca parar de testar</strong>.</p>
+          </div>
+        </div>
+
+        <div class="section-title">Os 6 ângulos de copy</div>
+        <div class="angles-list">
+          @for (angle of creativeAngles; track angle.tag) {
+            <div class="angle-card">
+              <div class="angle-left">
+                <div class="angle-tag" [style.color]="angle.color">{{ angle.tag }}</div>
+                <div class="angle-hook">{{ angle.hook }}</div>
+                <div class="angle-pain">{{ angle.pain }}</div>
+              </div>
+              <div class="angle-right">
+                <div class="angle-formats" [innerHTML]="safe(angle.formats)"></div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="section-title">Rotina semanal — 3h/semana</div>
+        <div class="routine-table">
+          <table>
+            <thead><tr><th>Dia</th><th>Ação</th><th>Tempo</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Segunda</strong></td><td>Revisar métricas. Matar criativos com CPA > R$50 ou CTR < 1%. Identificar o campeão da semana.</td><td>30 min</td></tr>
+              <tr><td><strong>Terça</strong></td><td>Gravar 1-2 criativos novos usando ângulo diferente do campeão.</td><td>1-2h</td></tr>
+              <tr><td><strong>Quarta</strong></td><td>Editar e publicar na Campanha 3. R$25/dia cada criativo.</td><td>1h</td></tr>
+              <tr><td><strong>Sexta</strong></td><td>Check: CPA < R$40 e 2+ vendas após 3 dias? Promover para Camp. 1. CPA ruim? Pausar.</td><td>20 min</td></tr>
+              <tr class="total-row"><td>Total</td><td>2-4 criativos testados, 1 promovido, 1-2 mortos por semana</td><td>~3h</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </p-tabpanel>
+
+    <!-- ═══ TAB 6: CENÁRIOS ═══ -->
+    <p-tabpanel value="6">
+      <div class="tab-content">
+        <div class="scenario-grid">
+          @for (s of scenarios; track s.label) {
+            <div class="scenario-card" [style.border-top]="'3px solid ' + s.color">
+              <div class="sc-tag" [style.color]="s.color">{{ s.label }}</div>
+              <div class="sc-lucro" [style.color]="s.color">{{ s.profit }}</div>
+              <div class="sc-sub">lucro no mês 3</div>
+              @for (row of s.rows; track row.label) {
+                <div class="sc-row">
+                  <span>{{ row.label }}</span>
+                  <span class="sc-val">{{ row.value }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-title">Projeção de lucro mensal — 12 semanas · 3 cenários</div>
+          <div class="chart-container">
+            <p-chart type="bar" [data]="cenariosChartData()" [options]="barChartOptions" height="240" />
+          </div>
+        </div>
+
+        <div class="alert-bar green">
+          <i class="pi pi-trophy"></i>
+          <div>
+            <strong>Onde você estará em 12 semanas (cenário realista)</strong>
+            <p>Faturamento R$19-21k/mês. Lucro R$5.800+/mês (vs R$198 hoje). Margem 28%. Reserva R$12.000+. Zero antecipação. 3 fontes de receita.</p>
+          </div>
+        </div>
+      </div>
+    </p-tabpanel>
+
+    <!-- ═══ TAB 7: MÉTRICAS ═══ -->
+    <p-tabpanel value="7">
+      <div class="tab-content">
+        @for (category of categoryOrder; track category) {
+          @if ((goalsByCategory().get(category) ?? []).length > 0) {
+            <div class="metrics-board">
+              <div class="mb-header">{{ categoryLabel(category) }}</div>
+              @for (goal of (goalsByCategory().get(category) ?? []); track goal.id) {
+                <div class="mb-row">
+                  <div class="mb-name">{{ goal.name }}</div>
+                  <div class="mb-target">
+                    <p-tag
+                      [value]="(goal.comparisonType === 'GreaterThan' ? '≥ ' : '≤ ') + formatValue(goal.targetValue, goal.unit)"
+                      [severity]="goalStatus(goal)"
+                    />
+                  </div>
+                  <div class="mb-current">
+                    Atual: <strong>{{ formatValue(goal.currentValue, goal.unit) }}</strong>
+                  </div>
+                  <div class="mb-action">{{ goal.actionIfFailed }}</div>
+                </div>
+              }
+            </div>
+          }
+        }
+      </div>
+    </p-tabpanel>
+
+    <!-- ═══ TAB 8: REGRAS DE OURO ═══ -->
+    <p-tabpanel value="8">
+      <div class="tab-content">
+        <div class="rules-grid">
+          @for (rule of goldenRules; track rule.title) {
+            <div class="rule-card" [style.border-top]="'2px solid ' + rule.color">
+              <h3 [style.color]="rule.color"><i [class]="rule.icon"></i> {{ rule.title }}</h3>
+              <p>{{ rule.text }}</p>
+            </div>
+          }
+        </div>
+
+        <div class="alert-bar gold">
+          <i class="pi pi-star"></i>
+          <div>
+            <strong>A regra mais importante de todas</strong>
+            <p>Toda sexta-feira, 15 minutos: abrir o Gerenciador de Anúncios + Hotmart + extrato bancário e responder: <strong>(1) Faturamento semanal ≥ R$2.500? (2) CPA ≤ R$42? (3) Reserva cresceu?</strong> Se 2 das 3 forem SIM, está no caminho. Se 2 das 3 forem NÃO, segunda-feira é dia de ação imediata.</p>
+          </div>
+        </div>
+      </div>
+    </p-tabpanel>
+
+  </p-tabpanels>
+</p-tabs>
+
+<!-- ═══ DRAWER: EDITAR METAS ═══ -->
+<p-drawer
+  [visible]="drawerVisible()"
+  (visibleChange)="drawerVisible.set($event)"
+  header="Editar Metas do Negócio"
+  position="right"
+  styleClass="planning-drawer"
+  [style]="{ width: '480px' }"
+>
+  <div class="drawer-content">
+
+    <!-- Goals por categoria -->
+    @for (category of categoryOrder; track category) {
+      @if ((goalsByCategory().get(category) ?? []).length > 0) {
+        <div class="drawer-section">
+          <div class="drawer-section-title">{{ categoryLabel(category) }}</div>
+          @for (goal of (goalsByCategory().get(category) ?? []); track goal.id) {
+            <div class="drawer-goal-row">
+              <div class="drawer-goal-name">{{ goal.name }}</div>
+              <div class="drawer-goal-fields">
+                <div class="field-group">
+                  <label>Meta ({{ goal.comparisonType === 'GreaterThan' ? '≥' : '≤' }})</label>
+                  <p-inputnumber
+                    [ngModel]="getGoalEditItem(goal.id)?.targetValue"
+                    (ngModelChange)="updateGoalTarget(goal.id, $event)"
+                    [minFractionDigits]="0"
+                    [maxFractionDigits]="2"
+                    [prefix]="goal.unit === 'BRL' ? 'R$ ' : ''"
+                    [suffix]="goal.unit === 'percent' ? '%' : goal.unit === 'multiplier' ? 'x' : ''"
+                    styleClass="w-full"
+                  />
+                </div>
+                <div class="field-group">
+                  <label>Valor atual</label>
+                  <p-inputnumber
+                    [ngModel]="getGoalEditItem(goal.id)?.currentValue"
+                    (ngModelChange)="updateGoalCurrent(goal.id, $event)"
+                    [minFractionDigits]="0"
+                    [maxFractionDigits]="2"
+                    [prefix]="goal.unit === 'BRL' ? 'R$ ' : ''"
+                    [suffix]="goal.unit === 'percent' ? '%' : goal.unit === 'multiplier' ? 'x' : ''"
+                    styleClass="w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+        <p-divider />
+      }
+    }
+
+    <!-- Configuração Financeira -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">Configuração Financeira (DRE)</div>
+
+      <div class="drawer-goal-row">
+        <div class="drawer-goal-name">Faturamento bruto/mês</div>
+        <div class="field-group">
+          <p-inputnumber
+            [ngModel]="editConfig().monthlyGrossRevenue"
+            (ngModelChange)="updateConfigField('monthlyGrossRevenue', $event)"
+            prefix="R$ " [minFractionDigits]="2" styleClass="w-full"
+          />
+        </div>
+      </div>
+      <div class="drawer-goal-row">
+        <div class="drawer-goal-name">Verba mensal de tráfego</div>
+        <div class="field-group">
+          <p-inputnumber
+            [ngModel]="editConfig().monthlyAdSpend"
+            (ngModelChange)="updateConfigField('monthlyAdSpend', $event)"
+            prefix="R$ " [minFractionDigits]="2" styleClass="w-full"
+          />
+        </div>
+      </div>
+      <div class="drawer-goal-row">
+        <div class="drawer-goal-name">Taxa Hotmart (%)</div>
+        <div class="field-group">
+          <p-inputnumber
+            [ngModel]="editConfig().hotmartFeePercent * 100"
+            (ngModelChange)="updateConfigField('hotmartFeePercent', $event / 100)"
+            suffix="%" [minFractionDigits]="1" [maxFractionDigits]="2" styleClass="w-full"
+          />
+        </div>
+      </div>
+      <div class="drawer-goal-row">
+        <div class="drawer-goal-name">Imposto federal (%)</div>
+        <div class="field-group">
+          <p-inputnumber
+            [ngModel]="editConfig().federalTaxPercent * 100"
+            (ngModelChange)="updateConfigField('federalTaxPercent', $event / 100)"
+            suffix="%" [minFractionDigits]="1" styleClass="w-full"
+          />
+        </div>
+      </div>
+      <div class="drawer-goal-row">
+        <div class="drawer-goal-name">Contabilidade (R$/mês)</div>
+        <div class="field-group">
+          <p-inputnumber
+            [ngModel]="editConfig().accountingCost"
+            (ngModelChange)="updateConfigField('accountingCost', $event)"
+            prefix="R$ " [minFractionDigits]="2" styleClass="w-full"
+          />
+        </div>
+      </div>
+      <div class="drawer-goal-row">
+        <div class="drawer-goal-name">Emissão NF (R$/mês)</div>
+        <div class="field-group">
+          <p-inputnumber
+            [ngModel]="editConfig().invoicingCost"
+            (ngModelChange)="updateConfigField('invoicingCost', $event)"
+            prefix="R$ " [minFractionDigits]="2" styleClass="w-full"
+          />
+        </div>
+      </div>
+      <div class="drawer-goal-row">
+        <div class="drawer-goal-name">Manychat + AI (R$/mês)</div>
+        <div class="field-group">
+          <p-inputnumber
+            [ngModel]="editConfig().manychatCost"
+            (ngModelChange)="updateConfigField('manychatCost', $event)"
+            prefix="R$ " [minFractionDigits]="2" styleClass="w-full"
+          />
+        </div>
+      </div>
+      <div class="drawer-goal-row">
+        <div class="drawer-goal-name">Hotmart Player (R$/mês)</div>
+        <div class="field-group">
+          <p-inputnumber
+            [ngModel]="editConfig().hotmartPlayerCost"
+            (ngModelChange)="updateConfigField('hotmartPlayerCost', $event)"
+            prefix="R$ " [minFractionDigits]="2" styleClass="w-full"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="drawer-footer">
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="drawerVisible.set(false)"
+      />
+      <p-button
+        label="Salvar Metas"
+        icon="pi pi-check"
+        (onClick)="saveChanges()"
+        [loading]="saving()"
+      />
+    </div>
+  </ng-template>
+</p-drawer>

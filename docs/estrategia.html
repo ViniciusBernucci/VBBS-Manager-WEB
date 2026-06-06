@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central de Estratégia — Cursos de Produção Musical</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+  --bg:       #08090D;
+  --bg2:      #0F1118;
+  --bg3:      #151821;
+  --card:     #181C26;
+  --card2:    #1E2330;
+  --border:   #252B3B;
+  --border2:  #2F374D;
+  --text:     #EDF0F7;
+  --text2:    #8C93A8;
+  --text3:    #545C73;
+  --gold:     #E8C96A;
+  --gold2:    #F5DFA0;
+  --gold-dim: rgba(232,201,106,0.10);
+  --green:    #3ECFA0;
+  --green-dim:rgba(62,207,160,0.10);
+  --red:      #E8604C;
+  --red-dim:  rgba(232,96,76,0.10);
+  --orange:   #F5904A;
+  --orange-dim:rgba(245,144,74,0.10);
+  --blue:     #5B9EF5;
+  --blue-dim: rgba(91,158,245,0.10);
+  --purple:   #9B7FE8;
+  --purple-dim:rgba(155,127,232,0.10);
+  --cyan:     #3ECFE0;
+  --pink:     #E87FB8;
+  --sidebar-w: 260px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
+
+/* ─── SIDEBAR ─── */
+#sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0; left: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-logo {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo .logo-icon {
+  width: 38px; height: 38px;
+  background: var(--gold);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+  font-size: 18px;
+  color: #08090D;
+}
+.sidebar-logo .title { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.sidebar-logo .sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+.sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+.nav-section { margin-bottom: 6px; }
+.nav-label {
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--text3); padding: 8px 24px 4px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 24px; cursor: pointer;
+  font-size: 13px; font-weight: 500; color: var(--text2);
+  transition: all 0.15s ease;
+  border-left: 2px solid transparent;
+  text-decoration: none;
+}
+.nav-item:hover { color: var(--text); background: var(--card); }
+.nav-item.active {
+  color: var(--gold);
+  border-left-color: var(--gold);
+  background: var(--gold-dim);
+}
+.nav-item i { width: 16px; text-align: center; font-size: 13px; }
+.nav-badge {
+  margin-left: auto; font-size: 10px; padding: 1px 6px;
+  border-radius: 20px; background: var(--card2);
+  color: var(--text3); font-family: 'DM Mono', monospace;
+}
+.nav-badge.new { background: var(--green-dim); color: var(--green); }
+
+.sidebar-bottom {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--text3);
+}
+.sidebar-bottom .last-update { display: flex; align-items: center; gap: 6px; }
+.sidebar-bottom .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; }
+
+/* ─── MAIN ─── */
+#main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-height: 100vh;
+}
+
+/* ─── TOP BAR ─── */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(8,9,13,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 36px;
+  height: 58px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-left { display: flex; align-items: center; gap: 8px; }
+.breadcrumb { font-size: 13px; color: var(--text3); }
+.breadcrumb .current { color: var(--text); font-weight: 600; }
+.breadcrumb .sep { margin: 0 6px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.status-pill {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; padding: 4px 10px; border-radius: 20px;
+  font-family: 'DM Mono', monospace; font-weight: 500;
+}
+.status-pill.attention { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(245,144,74,0.2); }
+.status-pill.target { background: var(--green-dim); color: var(--green); border: 1px solid rgba(62,207,160,0.2); }
+
+/* ─── SECTIONS ─── */
+.page-section {
+  display: none;
+  padding: 36px;
+  animation: fadeIn 0.25s ease;
+}
+.page-section.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-hero { margin-bottom: 32px; }
+.section-hero .eyebrow {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--gold); margin-bottom: 8px;
+}
+.section-hero h2 { font-size: 28px; font-weight: 800; margin-bottom: 8px; line-height: 1.2; }
+.section-hero p { font-size: 14px; color: var(--text2); max-width: 700px; line-height: 1.6; }
+
+/* ─── CARDS ─── */
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-bottom: 24px; }
+
+.kpi-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px 20px;
+  position: relative; overflow: hidden;
+}
+.kpi-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+}
+.kpi-card.gold::before { background: var(--gold); }
+.kpi-card.green::before { background: var(--green); }
+.kpi-card.red::before { background: var(--red); }
+.kpi-card.orange::before { background: var(--orange); }
+.kpi-card.blue::before { background: var(--blue); }
+.kpi-card.purple::before { background: var(--purple); }
+
+.kpi-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; font-weight: 500; }
+.kpi-val { font-size: 26px; font-weight: 800; font-family: 'DM Mono', monospace; margin-bottom: 4px; }
+.kpi-val.gold { color: var(--gold); }
+.kpi-val.green { color: var(--green); }
+.kpi-val.red { color: var(--red); }
+.kpi-val.orange { color: var(--orange); }
+.kpi-card .kpi-note { font-size: 11px; color: var(--text3); }
+.kpi-card .kpi-arrow { position: absolute; top: 18px; right: 18px; font-size: 20px; opacity: 0.15; }
+
+.info-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px 22px;
+}
+.info-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.info-card p { font-size: 13px; color: var(--text2); line-height: 1.65; }
+.info-card .tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-left: auto; font-weight: 600; }
+
+/* ─── ALERT BARS ─── */
+.alert-bar {
+  border-radius: 12px; padding: 14px 18px;
+  margin-bottom: 16px; border-left: 3px solid;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.alert-bar i { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+.alert-bar .content h4 { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.alert-bar .content p { font-size: 12px; color: var(--text2); line-height: 1.55; }
+.alert-bar.gold { background: var(--gold-dim); border-color: var(--gold); }
+.alert-bar.gold i, .alert-bar.gold h4 { color: var(--gold); }
+.alert-bar.red { background: var(--red-dim); border-color: var(--red); }
+.alert-bar.red i, .alert-bar.red h4 { color: var(--red); }
+.alert-bar.green { background: var(--green-dim); border-color: var(--green); }
+.alert-bar.green i, .alert-bar.green h4 { color: var(--green); }
+.alert-bar.orange { background: var(--orange-dim); border-color: var(--orange); }
+.alert-bar.orange i, .alert-bar.orange h4 { color: var(--orange); }
+.alert-bar.blue { background: var(--blue-dim); border-color: var(--blue); }
+.alert-bar.blue i, .alert-bar.blue h4 { color: var(--blue); }
+.alert-bar.purple { background: var(--purple-dim); border-color: var(--purple); }
+.alert-bar.purple i, .alert-bar.purple h4 { color: var(--purple); }
+
+/* ─── TABLES ─── */
+.table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 24px; }
+.table-wrap table { width: 100%; border-collapse: collapse; }
+.table-wrap thead th { padding: 11px 16px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); background: var(--card2); text-align: left; font-weight: 600; }
+.table-wrap tbody td { padding: 10px 16px; font-size: 13px; border-top: 1px solid var(--border); color: var(--text2); }
+.table-wrap tbody tr:hover td { background: var(--card2); }
+.table-wrap tbody tr.highlight td { background: var(--gold-dim); }
+.table-wrap .mono { font-family: 'DM Mono', monospace; font-size: 12px; }
+.table-wrap .pos { color: var(--green); font-weight: 600; }
+.table-wrap .neg { color: var(--red); }
+.table-wrap .warn { color: var(--orange); }
+.table-wrap tr.section-row td { background: var(--bg3); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); padding: 7px 16px; }
+.table-wrap tr.total-row td { background: var(--card2); font-weight: 700; color: var(--text); }
+
+/* ─── WEEK TIMELINE ─── */
+.timeline { display: flex; flex-direction: column; gap: 0; margin-bottom: 24px; }
+.phase-label {
+  padding: 9px 16px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  border-radius: 10px 10px 0 0;
+}
+.phase-label.red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(232,96,76,0.15); border-bottom: none; }
+.phase-label.green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(62,207,160,0.15); border-bottom: none; margin-top: 14px; }
+.phase-label.purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(155,127,232,0.15); border-bottom: none; margin-top: 14px; }
+
+.week-item {
+  display: grid; grid-template-columns: 62px 1fr;
+  border: 1px solid var(--border); border-top: none;
+  background: var(--card);
+}
+.week-item:last-of-type { border-radius: 0 0 10px 10px; }
+.wk-num {
+  padding: 14px 0; text-align: center;
+  font-weight: 800; font-size: 13px; color: var(--text3);
+  border-right: 1px solid var(--border);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 20px;
+}
+.wk-body { padding: 16px 20px; }
+.wk-body h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+.wk-body h4.milestone { color: var(--green); }
+.wk-metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 10px; }
+.wk-metric { background: var(--card2); border-radius: 8px; padding: 8px 10px; }
+.wk-metric .lbl { font-size: 10px; color: var(--text3); margin-bottom: 2px; }
+.wk-metric .v { font-size: 14px; font-weight: 700; font-family: 'DM Mono', monospace; }
+.wk-metric .v.g { color: var(--green); }
+.wk-metric .v.o { color: var(--orange); }
+.wk-metric .v.p { color: var(--purple); }
+.wk-actions { font-size: 12px; color: var(--text2); line-height: 1.8; }
+.wk-actions i { color: var(--text3); margin-right: 4px; font-size: 11px; }
+.reserve { display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; font-size: 11px; font-weight: 600; color: var(--purple); background: var(--purple-dim); border: 1px solid rgba(155,127,232,0.15); padding: 3px 10px; border-radius: 20px; }
+
+/* ─── ANGLE CARDS ─── */
+.angle-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.angle-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; display: grid; grid-template-columns: 1fr 1.1fr; gap: 18px; }
+.angle-card .ac-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.angle-card .ac-hook { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.angle-card .ac-pain { font-size: 12px; color: var(--text2); }
+.angle-card .ac-formats { background: var(--card2); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--text2); line-height: 1.75; }
+.angle-card .ac-formats strong { color: var(--text); }
+
+/* ─── PRODUCT PIPELINE ─── */
+.product-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 24px; }
+.product-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; }
+.product-card .pc-status { position: absolute; top: 12px; right: 12px; font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; }
+.product-card .pc-status.active { background: var(--green-dim); color: var(--green); }
+.product-card .pc-status.test { background: var(--orange-dim); color: var(--orange); }
+.product-card .pc-status.plan { background: var(--blue-dim); color: var(--blue); }
+.product-card .pc-type { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+.product-card .pc-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; padding-right: 50px; }
+.product-card .pc-price { font-size: 22px; font-weight: 800; font-family: 'DM Mono', monospace; color: var(--gold); margin-bottom: 6px; }
+.product-card .pc-impact { font-size: 11px; color: var(--text2); line-height: 1.5; }
+.product-card .pc-when { font-size: 10px; color: var(--text3); margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px; }
+
+/* ─── DRE TABLE ─── */
+.dre-table { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 24px; }
+.dre-table table { width: 100%; border-collapse: collapse; }
+.dre-table th { padding: 10px 18px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); background: var(--card2); text-align: left; }
+.dre-table th:not(:first-child) { text-align: right; }
+.dre-table td { padding: 9px 18px; font-size: 13px; border-top: 1px solid var(--border); color: var(--text2); }
+.dre-table td:not(:first-child) { text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; }
+.dre-table tr.subtotal td { background: var(--card2); color: var(--text); font-weight: 600; }
+.dre-table tr.total td { background: var(--bg3); color: var(--text); font-weight: 700; font-size: 14px; }
+.dre-table .neg { color: var(--red); }
+.dre-table .pos { color: var(--green); }
+.dre-table .warn { color: var(--orange); }
+
+/* ─── SCENARIO CARDS ─── */
+.scenario-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+.sc-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+.sc-card .sc-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.sc-card .sc-lucro { font-size: 28px; font-weight: 800; font-family: 'DM Mono', monospace; margin-bottom: 2px; }
+.sc-card .sc-sub { font-size: 11px; color: var(--text3); margin-bottom: 12px; }
+.sc-card .sc-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); padding: 3px 0; border-bottom: 1px solid var(--border); }
+.sc-card .sc-row:last-child { border: none; }
+.sc-card .sc-row .v { font-family: 'DM Mono', monospace; font-weight: 500; }
+
+/* ─── TRAFFIC ALLOC ─── */
+.traffic-phase { margin-bottom: 20px; }
+.traffic-phase h4 { font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+.week-alloc-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+.wk-alloc { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+.wk-alloc .wk-label { font-size: 10px; color: var(--text3); font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.wk-alloc .wk-total { font-size: 16px; font-weight: 800; font-family: 'DM Mono', monospace; margin-bottom: 8px; color: var(--gold); }
+.bar-row { display: flex; height: 18px; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+.bar-seg { display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: rgba(0,0,0,0.6); transition: width 0.4s ease; }
+.breakdown-lines { font-size: 11px; color: var(--text2); line-height: 1.8; }
+.breakdown-lines .dot { display: inline-block; width: 7px; height: 7px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+
+/* ─── METRICS DASHBOARD ─── */
+.metrics-board { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 24px; }
+.metrics-board .mb-header { background: var(--card2); padding: 12px 18px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); }
+.metrics-board .mb-row { display: grid; grid-template-columns: 1fr 140px 200px; padding: 10px 18px; border-top: 1px solid var(--border); align-items: center; font-size: 13px; }
+.metrics-board .mb-row:hover { background: var(--card2); }
+.metrics-board .mb-name { font-weight: 500; }
+.metrics-board .mb-target { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 600; text-align: center; }
+.metrics-board .mb-action { font-size: 11px; color: var(--text3); text-align: right; }
+
+/* ─── CANVAS CHART ─── */
+canvas { max-width: 100%; }
+.chart-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 24px; }
+.chart-wrap h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+
+/* ─── RULES ─── */
+.rules-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 24px; }
+.rule-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.rule-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.rule-card p { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+/* ─── MOBILE MENU BTN ─── */
+#menu-btn { display: none; background: none; border: none; color: var(--text); font-size: 20px; cursor: pointer; }
+
+@media (max-width: 900px) {
+  :root { --sidebar-w: 0px; }
+  #sidebar { transform: translateX(-260px); width: 260px; }
+  #sidebar.open { transform: translateX(0); }
+  #main { margin-left: 0; }
+  #menu-btn { display: block; }
+  .topbar { padding: 0 18px; }
+  .page-section { padding: 18px; }
+  .grid-4, .grid-3 { grid-template-columns: repeat(2,1fr); }
+  .grid-2, .scenario-grid, .product-grid { grid-template-columns: 1fr; }
+  .angle-card { grid-template-columns: 1fr; }
+  .wk-metrics { grid-template-columns: 1fr; }
+  .week-alloc-grid { grid-template-columns: repeat(2,1fr); }
+  .metrics-board .mb-row { grid-template-columns: 1fr 90px; }
+  .metrics-board .mb-action { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ─── -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon"><i class="fa-solid fa-music"></i></div>
+    <div class="title">Central de Estratégia</div>
+    <div class="sub">Produção Musical · 2026</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-label">Visão Geral</div>
+      <a class="nav-item active" onclick="show('overview')">
+        <i class="fa-solid fa-gauge-high"></i> Dashboard
+      </a>
+      <a class="nav-item" onclick="show('dre')">
+        <i class="fa-solid fa-file-invoice-dollar"></i> DRE &amp; KPIs
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Plano Operacional</div>
+      <a class="nav-item" onclick="show('plano')">
+        <i class="fa-solid fa-map-location-dot"></i> Plano 12 Semanas
+      </a>
+      <a class="nav-item" onclick="show('produtos')">
+        <i class="fa-solid fa-layer-group"></i> Esteira de Produtos
+      </a>
+      <a class="nav-item" onclick="show('trafego')">
+        <i class="fa-solid fa-chart-pie"></i> Alocação de Tráfego
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Crescimento</div>
+      <a class="nav-item" onclick="show('criativos')">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Estratégia de Criativos
+      </a>
+      <a class="nav-item" onclick="show('cenarios')">
+        <i class="fa-solid fa-chart-line"></i> Cenários &amp; Projeções
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Controle</div>
+      <a class="nav-item" onclick="show('metricas')">
+        <i class="fa-solid fa-sliders"></i> Painel de Métricas
+      </a>
+      <a class="nav-item" onclick="show('regras')">
+        <i class="fa-solid fa-shield-halved"></i> Regras de Ouro
+      </a>
+    </div>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="last-update"><div class="dot"></div> Atualizado em mai/2026</div>
+  </div>
+</nav>
+
+<!-- ─── MAIN ─── -->
+<div id="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button id="menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      <div class="breadcrumb">
+        <span>Estratégia</span><span class="sep">/</span><span class="current" id="breadcrumb-text">Dashboard</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="status-pill attention"><i class="fa-solid fa-circle" style="font-size:6px"></i> ATENÇÃO</div>
+      <div class="status-pill target"><i class="fa-solid fa-bullseye" style="font-size:9px"></i> Meta: R$15-30k lucro</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════ -->
+  <!-- OVERVIEW -->
+  <!-- ══════════════════════════════ -->
+  <section class="page-section active" id="s-overview">
+    <div class="section-hero">
+      <div class="eyebrow"><i class="fa-solid fa-gauge-high"></i> &nbsp;Dashboard</div>
+      <h2>Visão geral da operação</h2>
+      <p>Situação financeira atual, principais gargalos e o caminho para R$15-30k de lucro mensal em 12 semanas.</p>
+    </div>
+
+    <div class="alert-bar red">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <div class="content">
+        <h4>Gargalo crítico: margem de 1,6%</h4>
+        <p>Com faturamento de ~R$12.370/mês e lucro de apenas ~R$198, qualquer variação de CPA ou queda de conversão gera prejuízo imediato. A operação precisa de margem, não de mais volume.</p>
+      </div>
+    </div>
+
+    <div class="grid-4">
+      <div class="kpi-card orange">
+        <div class="kpi-label">Faturamento bruto/mês</div>
+        <div class="kpi-val orange">R$12.370</div>
+        <div class="kpi-note">232 vendas × R$53,32 ticket médio</div>
+        <div class="kpi-arrow"><i class="fa-solid fa-arrow-trend-up"></i></div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-label">Lucro operacional/mês</div>
+        <div class="kpi-val red">R$198</div>
+        <div class="kpi-note">margem de 1,6% — crítico</div>
+        <div class="kpi-arrow"><i class="fa-solid fa-arrow-trend-down"></i></div>
+      </div>
+      <div class="kpi-card orange">
+        <div class="kpi-label">ROAS atual</div>
+        <div class="kpi-val orange">1,41x</div>
+        <div class="kpi-note">meta: ≥ 2,0x para saúde</div>
+        <div class="kpi-arrow"><i class="fa-solid fa-chart-bar"></i></div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-label">CPA público frio</div>
+        <div class="kpi-val red">R$52</div>
+        <div class="kpi-note">meta: ≤ R$38 em 8 semanas</div>
+        <div class="kpi-arrow"><i class="fa-solid fa-bullseye"></i></div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="info-card" style="border-top: 2px solid var(--red);">
+        <h3><i class="fa-solid fa-lock" style="color:var(--red)"></i> Gargalo 1 — CPA vs ticket</h3>
+        <p>CPA público frio de R$52 é 75% do ticket bruto de R$69,90. Depois de taxas, cada venda "pura" dá prejuízo. A operação só funciona com bumps e upsell — zero margem de segurança.</p>
+      </div>
+      <div class="info-card" style="border-top: 2px solid var(--red);">
+        <h3><i class="fa-solid fa-rotate" style="color:var(--red)"></i> Gargalo 2 — Ciclo de antecipação</h3>
+        <p>Você antecipa semanalmente para pagar o Facebook, o que custa 2,19% sobre cada venda no cartão (33% das vendas) e impede a formação de reserva de caixa.</p>
+      </div>
+      <div class="info-card" style="border-top: 2px solid var(--orange);">
+        <h3><i class="fa-solid fa-lock" style="color:var(--orange)"></i> Restrição — Piso Hotmart</h3>
+        <p>Taxa de 9% negociada exige faturamento mínimo de R$10.000/mês. Isso impede corte agressivo de tráfego. A estratégia foca em aumentar ticket e reduzir CPA, não em reduzir volume.</p>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 16px;"><strong style="font-size:15px">3 alavancas para R$15-30k de lucro</strong></div>
+    <div class="grid-3">
+      <div class="info-card" style="border-top: 2px solid var(--green);">
+        <h3><i class="fa-solid fa-arrow-up" style="color:var(--green)"></i> Alavanca 1 — Ticket médio<span class="tag" style="background:var(--green-dim);color:var(--green)">+36%</span></h3>
+        <p>De R$53 → R$72 com 3º bump (Mixagem de Voz R$29,90), teste de preço R$79,90 e downsell Guia dos Plugins. Cada R$1 no ticket = 3 vendas a menos necessárias.</p>
+      </div>
+      <div class="info-card" style="border-top: 2px solid var(--blue);">
+        <h3><i class="fa-solid fa-crosshairs" style="color:var(--blue)"></i> Alavanca 2 — Reduzir CPA<span class="tag" style="background:var(--blue-dim);color:var(--blue)">-27%</span></h3>
+        <p>De R$52 → R$38 via reestruturação de campanhas (3 tipos), remarketing segmentado por temperatura e rotina semanal de criativos com laboratório de testes.</p>
+      </div>
+      <div class="info-card" style="border-top: 2px solid var(--purple);">
+        <h3><i class="fa-solid fa-envelope" style="color:var(--purple)"></i> Alavanca 3 — Canal orgânico<span class="tag" style="background:var(--purple-dim);color:var(--purple)">CAC 0</span></h3>
+        <p>Isca digital (ebook gratuito) captura leads → sequência de 7 emails vende sem custo de tráfego. Meta: 20-25 vendas/mês extras que contam para o piso da Hotmart.</p>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>Projeção de lucro — 12 semanas (cenário realista)</h3>
+      <canvas id="overviewChart" height="200"></canvas>
+    </div>
+
+    <div class="grid-4">
+      <div class="kpi-card green">
+        <div class="kpi-label">Lucro estimado mês 3</div>
+        <div class="kpi-val green">R$5.800</div>
+        <div class="kpi-note">cenário realista (ticket R$68, CPA R$38)</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Ticket médio meta (S12)</div>
+        <div class="kpi-val green">R$72</div>
+        <div class="kpi-note">vs R$53,32 atual (+35%)</div>
+      </div>
+      <div class="kpi-card gold">
+        <div class="kpi-label">Reserva de caixa (S12)</div>
+        <div class="kpi-val gold">R$12k+</div>
+        <div class="kpi-note">5 semanas de tráfego garantidas</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Margem meta</div>
+        <div class="kpi-val green">28%</div>
+        <div class="kpi-note">vs 1,6% atual</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ -->
+  <!-- DRE -->
+  <!-- ══════════════════════════════ -->
+  <section class="page-section" id="s-dre">
+    <div class="section-hero">
+      <div class="eyebrow"><i class="fa-solid fa-file-invoice-dollar"></i> &nbsp;DRE &amp; KPIs</div>
+      <h2>Demonstrativo de resultados atual</h2>
+      <p>Números reais com taxa Hotmart de 9%. Base: 232 vendas/mês, ticket médio R$53,32, tráfego R$8.000/mês.</p>
+    </div>
+
+    <div class="alert-bar gold">
+      <i class="fa-solid fa-info-circle"></i>
+      <div class="content">
+        <h4>Taxa Hotmart: 9% (negociada, não 8,4%)</h4>
+        <p>A taxa de 9% está condicionada a faturamento mínimo de R$10.000/mês. Abaixo desse piso, volta ao padrão (~12%). Todos os cálculos usam 9%.</p>
+      </div>
+    </div>
+
+    <div class="dre-table">
+      <table>
+        <thead><tr><th>Item</th><th>Valor (R$)</th><th>% Fat.</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:700;color:var(--text)">Faturamento bruto mensal</td><td class="mono" style="color:var(--text);font-weight:700">12.370</td><td class="mono">100%</td></tr>
+          <tr class="section-row"><td colspan="3">Deduções da plataforma</td></tr>
+          <tr><td>&nbsp;&nbsp;(−) Taxa Hotmart (9% + R$0,59/venda)</td><td class="mono neg">−1.250</td><td class="mono warn">10,1%</td></tr>
+          <tr><td>&nbsp;&nbsp;(−) Antecipação cartão (2,19% s/ 33%)</td><td class="mono neg">−89</td><td class="mono">0,7%</td></tr>
+          <tr><td>&nbsp;&nbsp;(−) Impostos federais (6%)</td><td class="mono neg">−742</td><td class="mono">6,0%</td></tr>
+          <tr><td>&nbsp;&nbsp;(−) Reembolsos (~1%)</td><td class="mono neg">−124</td><td class="mono">1,0%</td></tr>
+          <tr class="subtotal"><td>= Receita líquida</td><td class="mono">10.165</td><td class="mono">82,2%</td></tr>
+          <tr class="section-row"><td colspan="3">Custos variáveis</td></tr>
+          <tr><td>&nbsp;&nbsp;(−) Tráfego pago (Meta Ads)</td><td class="mono neg">−8.000</td><td class="mono warn">64,7%</td></tr>
+          <tr><td>&nbsp;&nbsp;(−) Imposto s/ tráfego Meta (10%)</td><td class="mono neg">−800</td><td class="mono">6,5%</td></tr>
+          <tr class="subtotal"><td>= Margem após tráfego</td><td class="mono">1.365</td><td class="mono">11,0%</td></tr>
+          <tr class="section-row"><td colspan="3">Custos fixos</td></tr>
+          <tr><td>&nbsp;&nbsp;(−) Contabilidade</td><td class="mono neg">−400</td><td class="mono">3,2%</td></tr>
+          <tr><td>&nbsp;&nbsp;(−) Emissão NF</td><td class="mono neg">−250</td><td class="mono">2,0%</td></tr>
+          <tr><td>&nbsp;&nbsp;(−) Manychat + AI</td><td class="mono neg">−448</td><td class="mono">3,6%</td></tr>
+          <tr><td>&nbsp;&nbsp;(−) Hotmart Player</td><td class="mono neg">−69</td><td class="mono">0,6%</td></tr>
+          <tr class="total"><td>= Lucro operacional</td><td class="mono pos">198</td><td class="mono warn">1,6%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-4">
+      <div class="kpi-card red"><div class="kpi-label">CAC atual</div><div class="kpi-val orange">R$37,93</div><div class="kpi-note">R$8.800 ÷ 232 vendas</div></div>
+      <div class="kpi-card red"><div class="kpi-label">CPA público frio</div><div class="kpi-val red">R$45-59</div><div class="kpi-note">acima do ticket líquido</div></div>
+      <div class="kpi-card orange"><div class="kpi-label">CPA remarketing</div><div class="kpi-val orange">R$52</div><div class="kpi-note">deveria ser R$25-35</div></div>
+      <div class="kpi-card gold"><div class="kpi-label">Ticket médio real</div><div class="kpi-val gold">R$53,32</div><div class="kpi-note">com bumps e upsell</div></div>
+    </div>
+
+    <div class="alert-bar orange">
+      <i class="fa-solid fa-calculator"></i>
+      <div class="content">
+        <h4>Piso de vendas para manter o contrato</h4>
+        <p>Com ticket atual R$53,32: precisa de <strong>188 vendas/mês (47/semana)</strong>. Com ticket R$68: apenas <strong>148 vendas/mês (37/semana)</strong>. Cada R$1 no ticket = 3 vendas a menos necessárias para o piso.</p>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>Composição do faturamento — destino de cada R$1</h3>
+      <canvas id="dreChart" height="160"></canvas>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ -->
+  <!-- PLANO -->
+  <!-- ══════════════════════════════ -->
+  <section class="page-section" id="s-plano">
+    <div class="section-hero">
+      <div class="eyebrow"><i class="fa-solid fa-map-location-dot"></i> &nbsp;Plano operacional</div>
+      <h2>12 semanas rumo a R$15-30k de lucro</h2>
+      <p>Estratégia: manter volume acima de 188 vendas/mês (piso Hotmart), aumentar ticket e reduzir CPA simultaneamente. Reserva de caixa cresce pela margem extra.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="phase-label red"><i class="fa-solid fa-wrench" style="margin-right:6px"></i> Fase 1 — Otimização sem cortar volume (semanas 1-4) · R$7.000/mês tráfego</div>
+
+      <div class="week-item">
+        <div class="wk-num">S1</div>
+        <div class="wk-body">
+          <h4>Reestruturar campanhas + ativar 3º bump</h4>
+          <div class="wk-metrics">
+            <div class="wk-metric"><div class="lbl">Tráfego/semana</div><div class="v o">R$1.750</div></div>
+            <div class="wk-metric"><div class="lbl">Meta vendas</div><div class="v">≥ 47/sem</div></div>
+            <div class="wk-metric"><div class="lbl">Ticket esperado</div><div class="v g">~R$59</div></div>
+          </div>
+          <div class="wk-actions">
+            <i class="fa-solid fa-arrow-right"></i> Dividir em 3 campanhas: público frio (50%), remarketing (33%), laboratório (17%)<br>
+            <i class="fa-solid fa-arrow-right"></i> <strong>Ativar "Mixagem de Voz" (R$29,90) como 3º order bump</strong> — ticket sobe ~R$6 imediatamente<br>
+            <i class="fa-solid fa-arrow-right"></i> Pausar criativos com CPA &gt; R$55. Manter apenas os 2-3 melhores<br>
+            <i class="fa-solid fa-arrow-right"></i> Separar remarketing em 3: checkout (quente), 75% vídeo (morno), engajamento (frio-morno)
+          </div>
+          <div class="reserve"><i class="fa-solid fa-piggy-bank"></i> Reserva: ~R$700</div>
+        </div>
+      </div>
+      <div class="week-item">
+        <div class="wk-num">S2</div>
+        <div class="wk-body">
+          <h4>Teste de preço R$79,90 + novos criativos</h4>
+          <div class="wk-metrics">
+            <div class="wk-metric"><div class="lbl">Tráfego/semana</div><div class="v o">R$1.750</div></div>
+            <div class="wk-metric"><div class="lbl">CPA alvo</div><div class="v g">&lt; R$45</div></div>
+            <div class="wk-metric"><div class="lbl">Criativos no lab</div><div class="v p">2 novos</div></div>
+          </div>
+          <div class="wk-actions">
+            <i class="fa-solid fa-arrow-right"></i> <strong>Teste A/B 50/50:</strong> página R$69,90 vs R$79,90. Se conversão cai &lt;15%, o novo preço compensa<br>
+            <i class="fa-solid fa-arrow-right"></i> Gravar 2 criativos novos: ângulo "dor técnica" + ângulo "tutorial gratuito"<br>
+            <i class="fa-solid fa-arrow-right"></i> Publicar no laboratório a R$25/dia cada<br>
+            <i class="fa-solid fa-arrow-right"></i> Verificar Hotmart Recomenda e Cross Sell — ativar se estiverem desligados
+          </div>
+          <div class="reserve"><i class="fa-solid fa-piggy-bank"></i> Reserva: ~R$1.400</div>
+        </div>
+      </div>
+      <div class="week-item">
+        <div class="wk-num">S3</div>
+        <div class="wk-body">
+          <h4>Isca digital no ar + avaliar teste de preço</h4>
+          <div class="wk-metrics">
+            <div class="wk-metric"><div class="lbl">Tráfego isca</div><div class="v p">15% budget</div></div>
+            <div class="wk-metric"><div class="lbl">CPL meta</div><div class="v g">R$3-8</div></div>
+            <div class="wk-metric"><div class="lbl">Criativos vivos</div><div class="v g">6-8</div></div>
+          </div>
+          <div class="wk-actions">
+            <i class="fa-solid fa-arrow-right"></i> <strong>Publicar ebook "Segredos da Mixagem" como isca gratuita</strong> com página de captura<br>
+            <i class="fa-solid fa-arrow-right"></i> Configurar sequência básica de 3 emails (entrega → valor → oferta)<br>
+            <i class="fa-solid fa-arrow-right"></i> Avaliar A/B de preço: se R$79,90 manteve volume, adotar. Se caiu &gt;15%, voltar<br>
+            <i class="fa-solid fa-arrow-right"></i> Promover criativos vencedores do lab para campanha 1
+          </div>
+          <div class="reserve"><i class="fa-solid fa-piggy-bank"></i> Reserva: ~R$1.400 (após gastos)</div>
+        </div>
+      </div>
+      <div class="week-item">
+        <div class="wk-num">S4</div>
+        <div class="wk-body">
+          <h4>Sequência completa de 7 emails + balanço do mês 1</h4>
+          <div class="wk-metrics">
+            <div class="wk-metric"><div class="lbl">Vendas email</div><div class="v g">3-5 vendas</div></div>
+            <div class="wk-metric"><div class="lbl">CPA geral meta</div><div class="v g">&lt; R$42</div></div>
+            <div class="wk-metric"><div class="lbl">Ticket médio</div><div class="v g">~R$60</div></div>
+          </div>
+          <div class="wk-actions">
+            <i class="fa-solid fa-arrow-right"></i> Expandir para 7 emails: cases de alunos, objeções, urgência, última chance<br>
+            <i class="fa-solid fa-arrow-right"></i> Primeiras vendas por email surgem — <strong>essas vendas têm CAC zero</strong><br>
+            <i class="fa-solid fa-arrow-right"></i> Balanço: ticket subiu? CPA caiu? Se ticket ≥ R$60 e CPA ≤ R$42 → começando a acumular margem
+          </div>
+          <div class="reserve"><i class="fa-solid fa-piggy-bank"></i> Reserva: ~R$1.200 (após fixos mensais)</div>
+        </div>
+      </div>
+
+      <div class="phase-label green"><i class="fa-solid fa-seedling" style="margin-right:6px"></i> Fase 2 — Margem cresce, reserva se forma (semanas 5-8) · R$7.000-8.000/mês</div>
+
+      <div class="week-item">
+        <div class="wk-num">S5</div>
+        <div class="wk-body">
+          <h4>Parar de antecipar o cartão — Pix já cobre o tráfego</h4>
+          <div class="wk-metrics">
+            <div class="wk-metric"><div class="lbl">Pix semanal</div><div class="v g">~R$1.750</div></div>
+            <div class="wk-metric"><div class="lbl">Tráfego semanal</div><div class="v o">R$1.750</div></div>
+            <div class="wk-metric"><div class="lbl">Ticket estimado</div><div class="v g">~R$63</div></div>
+          </div>
+          <div class="wk-actions">
+            <i class="fa-solid fa-arrow-right"></i> Com ticket a R$63 e CPA a ~R$40, lucro por venda começa a aparecer de verdade<br>
+            <i class="fa-solid fa-arrow-right"></i> <strong>Testar parar de antecipar:</strong> se o Pix semanal cobre o gasto, cartão fica acumulando<br>
+            <i class="fa-solid fa-arrow-right"></i> Escalar criativos vencedores: +20% de budget nos campeões da campanha 1
+          </div>
+          <div class="reserve"><i class="fa-solid fa-piggy-bank"></i> Reserva: ~R$2.400</div>
+        </div>
+      </div>
+      <div class="week-item">
+        <div class="wk-num">S6</div>
+        <div class="wk-body">
+          <h4>Cartão D+30 começa a cair + criar downsell Guia dos Plugins</h4>
+          <div class="wk-metrics">
+            <div class="wk-metric"><div class="lbl">Cartão D+30/sem</div><div class="v g">~R$580</div></div>
+            <div class="wk-metric"><div class="lbl">Vendas email</div><div class="v g">5-8/sem</div></div>
+            <div class="wk-metric"><div class="lbl">% orgânico</div><div class="v g">~10%</div></div>
+          </div>
+          <div class="wk-actions">
+            <i class="fa-solid fa-arrow-right"></i> Cartão das semanas 1-5 (que não foi antecipado) começa a cair sem taxa de 2,19%<br>
+            <i class="fa-solid fa-arrow-right"></i> <strong>Criar "Guia dos Plugins" (R$19,90) como downsell</strong> para quem recusou o Up the Mix<br>
+            <i class="fa-solid fa-arrow-right"></i> Conteúdo orgânico: 3 posts/semana no Instagram (Reels/carrossel)
+          </div>
+          <div class="reserve"><i class="fa-solid fa-piggy-bank"></i> Reserva: ~R$3.800</div>
+        </div>
+      </div>
+      <div class="week-item">
+        <div class="wk-num">S7</div>
+        <div class="wk-body">
+          <h4>Publicar downsell + ticket sobe para ~R$68</h4>
+          <div class="wk-metrics">
+            <div class="wk-metric"><div class="lbl">Ticket médio</div><div class="v g">~R$68</div></div>
+            <div class="wk-metric"><div class="lbl">Vendas p/ R$10k</div><div class="v g">148/mês</div></div>
+            <div class="wk-metric"><div class="lbl">CPA meta</div><div class="v g">R$38</div></div>
+          </div>
+          <div class="wk-actions">
+            <i class="fa-solid fa-arrow-right"></i> Com ticket R$68: apenas 148 vendas/mês para bater R$10k — margem de segurança enorme<br>
+            <i class="fa-solid fa-arrow-right"></i> <strong>Ativar downsell "Guia dos Plugins"</strong> na página de obrigado após recusa do upsell<br>
+            <i class="fa-solid fa-arrow-right"></i> Continuar acumulando cartão D+30 sem antecipar
+          </div>
+          <div class="reserve"><i class="fa-solid fa-piggy-bank"></i> Reserva: ~R$5.200</div>
+        </div>
+      </div>
+      <div class="week-item">
+        <div class="wk-num">S8</div>
+        <div class="wk-body">
+          <h4 class="milestone"><i class="fa-solid fa-flag-checkered"></i> Marco: antecipação eliminada + margem real</h4>
+          <div class="wk-metrics">
+            <div class="wk-metric"><div class="lbl">Reserva de caixa</div><div class="v p">~R$6.500</div></div>
+            <div class="wk-metric"><div class="lbl">Lucro/mês</div><div class="v g">~R$3.500</div></div>
+            <div class="wk-metric"><div class="lbl">Margem</div><div class="v g">~22%</div></div>
+          </div>
+          <div class="wk-actions">
+            <i class="fa-solid fa-arrow-right"></i> R$6.500 de reserva = 3,7 semanas de tráfego como colchão<br>
+            <i class="fa-solid fa-arrow-right"></i> Email gerando ~15-20 vendas/mês extras — R$1.000-1.400 sem custo de aquisição<br>
+            <i class="fa-solid fa-arrow-right"></i> <strong>Negociar taxa com Hotmart</strong> usando proposta da Green: pedir 7-7,5%
+          </div>
+          <div class="reserve"><i class="fa-solid fa-trophy" style="color:var(--green)"></i> Ciclo de antecipação ELIMINADO</div>
+        </div>
+      </div>
+
+      <div class="phase-label purple"><i class="fa-solid fa-rocket" style="margin-right:6px"></i> Fase 3 — Escala com segurança (semanas 9-12) · R$8.500-10.000/mês</div>
+
+      <div class="week-item">
+        <div class="wk-num">S9</div>
+        <div class="wk-body">
+          <h4>Escalar tráfego para R$8.500/mês com caixa próprio</h4>
+          <div class="wk-metrics">
+            <div class="wk-metric"><div class="lbl">Tráfego/semana</div><div class="v p">R$2.125</div></div>
+            <div class="wk-metric"><div class="lbl">Fat. estimado</div><div class="v g">~R$17k</div></div>
+            <div class="wk-metric"><div class="lbl">Lucro/mês</div><div class="v g">~R$4.500</div></div>
+          </div>
+          <div class="wk-actions">
+            <i class="fa-solid fa-arrow-right"></i> <strong>Aumentar tráfego em 20% — pago com caixa próprio, zero antecipação</strong><br>
+            <i class="fa-solid fa-arrow-right"></i> Começar gravação de "Home Studio ao Spotify" (high ticket R$197)<br>
+            <i class="fa-solid fa-arrow-right"></i> Lista de leads com 300-500 pessoas. Nutrição por email ativa
+          </div>
+          <div class="reserve"><i class="fa-solid fa-piggy-bank"></i> Reserva: ~R$7.800</div>
+        </div>
+      </div>
+      <div class="week-item">
+        <div class="wk-num">S10</div>
+        <div class="wk-body">
+          <h4>Upsell do ebook + avaliar ROI do Manychat AI</h4>
+          <div class="wk-metrics">
+            <div class="wk-metric"><div class="lbl">Produtos ativos</div><div class="v g">+2 novos</div></div>
+            <div class="wk-metric"><div class="lbl">Ticket médio</div><div class="v g">~R$72</div></div>
+            <div class="wk-metric"><div class="lbl">Email vendas</div><div class="v g">20-25/mês</div></div>
+          </div>
+          <div class="wk-actions">
+            <i class="fa-solid fa-arrow-right"></i> <strong>Lançar "Guia dos Plugins em Vídeo" (R$47)</strong> como upsell do ebook por email<br>
+            <i class="fa-solid fa-arrow-right"></i> Avaliar Manychat AI (R$299/mês): se gera &lt;6 vendas/mês, cancelar<br>
+            <i class="fa-solid fa-arrow-right"></i> Orgânico começa a gerar 3-5 vendas/mês (efeito acumulado dos Reels)
+          </div>
+          <div class="reserve"><i class="fa-solid fa-piggy-bank"></i> Reserva: ~R$9.200</div>
+        </div>
+      </div>
+      <div class="week-item">
+        <div class="wk-num">S11</div>
+        <div class="wk-body">
+          <h4>Escalar para R$10.000/mês de tráfego</h4>
+          <div class="wk-metrics">
+            <div class="wk-metric"><div class="lbl">Tráfego/semana</div><div class="v p">R$2.500</div></div>
+            <div class="wk-metric"><div class="lbl">Fat. bruto/mês</div><div class="v g">~R$19k</div></div>
+            <div class="wk-metric"><div class="lbl">Lucro/mês</div><div class="v g">~R$5.800</div></div>
+          </div>
+          <div class="wk-actions">
+            <i class="fa-solid fa-arrow-right"></i> ROAS consistente ≥ 2.0x por 2 semanas → escalar tráfego para R$10k/mês<br>
+            <i class="fa-solid fa-arrow-right"></i> ~290 vendas tráfego + ~25 email/orgânico = ~315 vendas totais
+          </div>
+          <div class="reserve"><i class="fa-solid fa-piggy-bank"></i> Reserva: ~R$10.500</div>
+        </div>
+      </div>
+      <div class="week-item">
+        <div class="wk-num">S12</div>
+        <div class="wk-body">
+          <h4 class="milestone"><i class="fa-solid fa-trophy"></i> Operação estável — base para R$15-30k</h4>
+          <div class="wk-metrics">
+            <div class="wk-metric"><div class="lbl">Reserva</div><div class="v p">R$12k+</div></div>
+            <div class="wk-metric"><div class="lbl">Lucro/mês</div><div class="v g">R$5.800+</div></div>
+            <div class="wk-metric"><div class="lbl">Margem</div><div class="v g">~28%</div></div>
+          </div>
+          <div class="wk-actions">
+            <i class="fa-solid fa-arrow-right"></i> 3 fontes de receita: tráfego (80%), email (12%), orgânico (8%)<br>
+            <i class="fa-solid fa-arrow-right"></i> Esteira: 1 isca + 1 produto principal + 3 bumps + 1 upsell + 1 downsell + 1 produto por email<br>
+            <i class="fa-solid fa-arrow-right"></i> <strong>Pronto para Horizonte 2: "Home Studio ao Spotify" + escala para R$15-20k de lucro</strong>
+          </div>
+          <div class="reserve"><i class="fa-solid fa-trophy" style="color:var(--green)"></i> Base sólida para escalar com segurança</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ -->
+  <!-- PRODUTOS -->
+  <!-- ══════════════════════════════ -->
+  <section class="page-section" id="s-produtos">
+    <div class="section-hero">
+      <div class="eyebrow"><i class="fa-solid fa-layer-group"></i> &nbsp;Esteira de produtos</div>
+      <h2>Do ticket R$53 para R$72 em 12 semanas</h2>
+      <p>Cada produto novo aumenta o ticket médio sem gastar mais em tráfego. Sequência de ativação alinhada com o plano semanal.</p>
+    </div>
+
+    <div class="alert-bar gold">
+      <i class="fa-solid fa-chart-line"></i>
+      <div class="content"><h4>O impacto do ticket no lucro</h4>
+      <p>De R$53 → R$72 (+R$19/venda) com 232 vendas/mês = +R$4.408/mês de lucro extra sem gastar 1 real a mais em tráfego. É a alavanca mais poderosa da operação.</p></div>
+    </div>
+
+    <div class="product-grid">
+      <div class="product-card"><span class="pc-status active">Ativo</span><div class="pc-type">Isca digital</div><div class="pc-name">Ebook Segredos da Mixagem</div><div class="pc-price">Grátis</div><div class="pc-impact">Captura leads → sequência de emails → vendas com CAC zero</div><div class="pc-when"><i class="fa-solid fa-calendar"></i> Ativar: semana 3</div></div>
+      <div class="product-card"><span class="pc-status active">Principal</span><div class="pc-type">Produto carro-chefe</div><div class="pc-name">Reaper Total</div><div class="pc-price">R$79,90</div><div class="pc-impact">Teste de preço na S2. +R$10/venda se mantiver conversão</div><div class="pc-when"><i class="fa-solid fa-calendar"></i> Teste: semana 2</div></div>
+      <div class="product-card"><span class="pc-status active">Ativo</span><div class="pc-type">Order Bump 1</div><div class="pc-name">Super Pack de Loops</div><div class="pc-price">R$29,90</div><div class="pc-impact">+R$7,47/venda (25% conversão). Manter</div><div class="pc-when"><i class="fa-solid fa-calendar"></i> Já ativo</div></div>
+      <div class="product-card"><span class="pc-status active">Ativo</span><div class="pc-type">Order Bump 2</div><div class="pc-name">Masterização in the Box</div><div class="pc-price">R$39,90</div><div class="pc-impact">+R$9,97/venda (25% conversão). Manter</div><div class="pc-when"><i class="fa-solid fa-calendar"></i> Já ativo</div></div>
+      <div class="product-card"><span class="pc-status test">Novo bump</span><div class="pc-type">Order Bump 3 — NOVO</div><div class="pc-name">Segredos da Mixagem de Voz</div><div class="pc-price">R$29,90</div><div class="pc-impact">+R$5,98/venda (20% conversão estimada). Maior diferencial</div><div class="pc-when"><i class="fa-solid fa-calendar"></i> Ativar: semana 1</div></div>
+      <div class="product-card"><span class="pc-status active">Ativo</span><div class="pc-type">Upsell principal</div><div class="pc-name">Up the Mix — Curso Mixagem</div><div class="pc-price">R$97,00</div><div class="pc-impact">+R$14,55/venda (15% conversão). Manter</div><div class="pc-when"><i class="fa-solid fa-calendar"></i> Já ativo</div></div>
+      <div class="product-card"><span class="pc-status test">Criar</span><div class="pc-type">Downsell — NOVO</div><div class="pc-name">O Guia dos Plugins (ebook)</div><div class="pc-price">R$19,90</div><div class="pc-impact">+R$1,99/venda (10% dos que recusaram upsell). Recupera vendas perdidas</div><div class="pc-when"><i class="fa-solid fa-calendar"></i> Criar: semana 6-7</div></div>
+      <div class="product-card"><span class="pc-status test">Criar</span><div class="pc-type">Upsell do ebook — NOVO</div><div class="pc-name">Guia dos Plugins em Vídeo</div><div class="pc-price">R$47,00</div><div class="pc-impact">Venda por email para quem baixou ebook. 30% dos compradores do ebook</div><div class="pc-when"><i class="fa-solid fa-calendar"></i> Criar: semana 10</div></div>
+      <div class="product-card"><span class="pc-status plan">Produzir</span><div class="pc-type">High ticket — futuro</div><div class="pc-name">Home Studio ao Spotify</div><div class="pc-price">R$197</div><div class="pc-impact">Produto de escala. 5% conversão = +R$9,85/venda média. Lançar no mês 4-6</div><div class="pc-when"><i class="fa-solid fa-calendar"></i> Lançar: mês 4-6</div></div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Produto</th><th>Preço</th><th>Tipo</th><th>Conv. estimada</th><th>+Receita por 100 vendas</th><th>Semana de ativação</th></tr></thead>
+        <tbody>
+          <tr><td>Reaper Total</td><td class="mono">R$79,90*</td><td>Principal</td><td>100%</td><td class="mono pos">R$7.990</td><td>Semana 2 (teste)</td></tr>
+          <tr><td>Super Pack de Loops</td><td class="mono">R$29,90</td><td>Bump 1</td><td>25%</td><td class="mono pos">R$747</td><td>Já ativo</td></tr>
+          <tr><td>Masterização in the Box</td><td class="mono">R$39,90</td><td>Bump 2</td><td>25%</td><td class="mono pos">R$997</td><td>Já ativo</td></tr>
+          <tr class="highlight"><td>Mixagem de Voz <strong>(novo)</strong></td><td class="mono">R$29,90</td><td>Bump 3</td><td>20%</td><td class="mono pos">R$598</td><td><strong>Semana 1</strong></td></tr>
+          <tr><td>Up the Mix</td><td class="mono">R$97,00</td><td>Upsell</td><td>15%</td><td class="mono pos">R$1.455</td><td>Já ativo</td></tr>
+          <tr class="highlight"><td>Guia dos Plugins (novo)</td><td class="mono">R$19,90</td><td>Downsell</td><td>10%</td><td class="mono pos">R$199</td><td><strong>Semana 6-7</strong></td></tr>
+          <tr class="total-row"><td colspan="4">Ticket médio projetado (S12)</td><td class="mono pos">~R$72</td><td>+35% vs atual</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ -->
+  <!-- TRÁFEGO -->
+  <!-- ══════════════════════════════ -->
+  <section class="page-section" id="s-trafego">
+    <div class="section-hero">
+      <div class="eyebrow"><i class="fa-solid fa-chart-pie"></i> &nbsp;Alocação de tráfego</div>
+      <h2>Distribuição por campanha e por produto</h2>
+      <p>Como dividir o budget entre os 3 tipos de campanha e os produtos ao longo das 12 semanas.</p>
+    </div>
+
+    <div class="alert-bar blue">
+      <i class="fa-solid fa-lightbulb"></i>
+      <div class="content"><h4>Lógica da evolução</h4>
+      <p><strong>Fase 1:</strong> mais remarketing (33%) — aqui está a maior margem de ganho, pois seu CPA de remarketing de R$52 deveria ser R$25-35. <strong>Fase 2:</strong> público frio sobe (57%) — criativos já validados. <strong>Fase 3:</strong> público frio domina (60%) com scale. Lab nunca abaixo de 13% — renovação constante é obrigatória.</p></div>
+    </div>
+
+    <div class="traffic-phase">
+      <h4><i class="fa-solid fa-wrench" style="color:var(--red)"></i> Fase 1 — Otimização (S1-S4) · R$7.000/mês</h4>
+      <div class="week-alloc-grid">
+        <div class="wk-alloc">
+          <div class="wk-label">Semana 1-2</div>
+          <div class="wk-total">R$1.750/sem</div>
+          <div class="bar-row">
+            <div class="bar-seg" style="width:50%;background:var(--orange)">50%</div>
+            <div class="bar-seg" style="width:33%;background:var(--green)">33%</div>
+            <div class="bar-seg" style="width:17%;background:var(--purple)">17%</div>
+          </div>
+          <div class="breakdown-lines">
+            <span class="dot" style="background:var(--orange)"></span>Frio: <strong>R$880</strong> (50%)<br>
+            <span class="dot" style="background:var(--green)"></span>Rmkt: <strong>R$570</strong> (33%)<br>
+            <span class="dot" style="background:var(--purple)"></span>Lab: <strong>R$300</strong> (17%)
+          </div>
+        </div>
+        <div class="wk-alloc">
+          <div class="wk-label">Semana 3-4</div>
+          <div class="wk-total">R$1.750/sem</div>
+          <div class="bar-row">
+            <div class="bar-seg" style="width:52%;background:var(--orange)">52%</div>
+            <div class="bar-seg" style="width:30%;background:var(--green)">30%</div>
+            <div class="bar-seg" style="width:18%;background:var(--purple)">18%</div>
+          </div>
+          <div class="breakdown-lines">
+            <span class="dot" style="background:var(--orange)"></span>Frio: <strong>R$910</strong> (52%)<br>
+            <span class="dot" style="background:var(--green)"></span>Rmkt: <strong>R$530</strong> (30%)<br>
+            <span class="dot" style="background:var(--purple)"></span>Lab: <strong>R$310</strong> (18%)
+          </div>
+        </div>
+        <div class="wk-alloc" style="border-top: 2px solid var(--cyan)">
+          <div class="wk-label">Produto S1-S2</div>
+          <div class="wk-total" style="color:var(--text2);font-size:13px">Destino</div>
+          <div class="bar-row">
+            <div class="bar-seg" style="width:100%;background:var(--orange)">Reaper 100%</div>
+          </div>
+          <div class="breakdown-lines">
+            <span class="dot" style="background:var(--orange)"></span>Reaper Total: <strong>100%</strong><br>
+            <span style="color:var(--text3);font-size:11px">Isca não lançada ainda</span>
+          </div>
+        </div>
+        <div class="wk-alloc" style="border-top: 2px solid var(--cyan)">
+          <div class="wk-label">Produto S3-S4</div>
+          <div class="wk-total" style="color:var(--text2);font-size:13px">Destino</div>
+          <div class="bar-row">
+            <div class="bar-seg" style="width:82%;background:var(--orange)">82%</div>
+            <div class="bar-seg" style="width:18%;background:var(--cyan)">18%</div>
+          </div>
+          <div class="breakdown-lines">
+            <span class="dot" style="background:var(--orange)"></span>Reaper: <strong>82%</strong><br>
+            <span class="dot" style="background:var(--cyan)"></span>Isca: <strong>18%</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="traffic-phase">
+      <h4><i class="fa-solid fa-seedling" style="color:var(--green)"></i> Fase 2 — Margem cresce (S5-S8) · R$7.000-8.000/mês</h4>
+      <div class="week-alloc-grid">
+        <div class="wk-alloc">
+          <div class="wk-label">Semana 5-6</div>
+          <div class="wk-total">R$1.775/sem</div>
+          <div class="bar-row">
+            <div class="bar-seg" style="width:56%;background:var(--orange)">56%</div>
+            <div class="bar-seg" style="width:30%;background:var(--green)">30%</div>
+            <div class="bar-seg" style="width:14%;background:var(--purple)">14%</div>
+          </div>
+          <div class="breakdown-lines">
+            <span class="dot" style="background:var(--orange)"></span>Frio: <strong>R$985</strong> (56%)<br>
+            <span class="dot" style="background:var(--green)"></span>Rmkt: <strong>R$535</strong> (30%)<br>
+            <span class="dot" style="background:var(--purple)"></span>Lab: <strong>R$255</strong> (14%)
+          </div>
+        </div>
+        <div class="wk-alloc">
+          <div class="wk-label">Semana 7-8</div>
+          <div class="wk-total">R$1.885/sem</div>
+          <div class="bar-row">
+            <div class="bar-seg" style="width:57%;background:var(--orange)">57%</div>
+            <div class="bar-seg" style="width:29%;background:var(--green)">29%</div>
+            <div class="bar-seg" style="width:14%;background:var(--purple)">14%</div>
+          </div>
+          <div class="breakdown-lines">
+            <span class="dot" style="background:var(--orange)"></span>Frio: <strong>R$1.075</strong> (57%)<br>
+            <span class="dot" style="background:var(--green)"></span>Rmkt: <strong>R$547</strong> (29%)<br>
+            <span class="dot" style="background:var(--purple)"></span>Lab: <strong>R$263</strong> (14%)
+          </div>
+        </div>
+        <div class="wk-alloc" style="border-top: 2px solid var(--cyan)">
+          <div class="wk-label">Produto S5-S6</div>
+          <div class="wk-total" style="color:var(--text2);font-size:13px">Destino</div>
+          <div class="bar-row">
+            <div class="bar-seg" style="width:72%;background:var(--orange)">72%</div>
+            <div class="bar-seg" style="width:18%;background:var(--cyan)">18%</div>
+            <div class="bar-seg" style="width:10%;background:var(--green)">10%</div>
+          </div>
+          <div class="breakdown-lines">
+            <span class="dot" style="background:var(--orange)"></span>Reaper: <strong>72%</strong><br>
+            <span class="dot" style="background:var(--cyan)"></span>Isca: <strong>18%</strong><br>
+            <span class="dot" style="background:var(--green)"></span>Plugins: <strong>10%</strong>
+          </div>
+        </div>
+        <div class="wk-alloc" style="border-top: 2px solid var(--cyan)">
+          <div class="wk-label">Produto S7-S8</div>
+          <div class="wk-total" style="color:var(--text2);font-size:13px">Destino</div>
+          <div class="bar-row">
+            <div class="bar-seg" style="width:70%;background:var(--orange)">70%</div>
+            <div class="bar-seg" style="width:17%;background:var(--cyan)">17%</div>
+            <div class="bar-seg" style="width:13%;background:var(--green)">13%</div>
+          </div>
+          <div class="breakdown-lines">
+            <span class="dot" style="background:var(--orange)"></span>Reaper: <strong>70%</strong><br>
+            <span class="dot" style="background:var(--cyan)"></span>Isca: <strong>17%</strong><br>
+            <span class="dot" style="background:var(--green)"></span>Plugins: <strong>13%</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="traffic-phase">
+      <h4><i class="fa-solid fa-rocket" style="color:var(--purple)"></i> Fase 3 — Escala (S9-S12) · R$8.500-10.000/mês</h4>
+      <div class="week-alloc-grid">
+        <div class="wk-alloc">
+          <div class="wk-label">Semana 9-10</div>
+          <div class="wk-total">R$2.188/sem</div>
+          <div class="bar-row">
+            <div class="bar-seg" style="width:60%;background:var(--orange)">60%</div>
+            <div class="bar-seg" style="width:27%;background:var(--green)">27%</div>
+            <div class="bar-seg" style="width:13%;background:var(--purple)">13%</div>
+          </div>
+          <div class="breakdown-lines">
+            <span class="dot" style="background:var(--orange)"></span>Frio: <strong>R$1.313</strong> (60%)<br>
+            <span class="dot" style="background:var(--green)"></span>Rmkt: <strong>R$591</strong> (27%)<br>
+            <span class="dot" style="background:var(--purple)"></span>Lab: <strong>R$284</strong> (13%)
+          </div>
+        </div>
+        <div class="wk-alloc">
+          <div class="wk-label">Semana 11-12</div>
+          <div class="wk-total">R$2.500/sem</div>
+          <div class="bar-row">
+            <div class="bar-seg" style="width:60%;background:var(--orange)">60%</div>
+            <div class="bar-seg" style="width:25%;background:var(--green)">25%</div>
+            <div class="bar-seg" style="width:15%;background:var(--purple)">15%</div>
+          </div>
+          <div class="breakdown-lines">
+            <span class="dot" style="background:var(--orange)"></span>Frio: <strong>R$1.500</strong> (60%)<br>
+            <span class="dot" style="background:var(--green)"></span>Rmkt: <strong>R$625</strong> (25%)<br>
+            <span class="dot" style="background:var(--purple)"></span>Lab: <strong>R$375</strong> (15%)
+          </div>
+        </div>
+        <div class="wk-alloc" style="border-top: 2px solid var(--cyan)">
+          <div class="wk-label">Produto S9-S10</div>
+          <div class="wk-total" style="color:var(--text2);font-size:13px">Destino</div>
+          <div class="bar-row">
+            <div class="bar-seg" style="width:64%;background:var(--orange)">64%</div>
+            <div class="bar-seg" style="width:15%;background:var(--cyan)">15%</div>
+            <div class="bar-seg" style="width:12%;background:var(--green)">12%</div>
+            <div class="bar-seg" style="width:9%;background:var(--pink)">9%</div>
+          </div>
+          <div class="breakdown-lines">
+            <span class="dot" style="background:var(--orange)"></span>Reaper: <strong>64%</strong><br>
+            <span class="dot" style="background:var(--cyan)"></span>Isca: <strong>15%</strong><br>
+            <span class="dot" style="background:var(--green)"></span>Plugins: <strong>12%</strong><br>
+            <span class="dot" style="background:var(--pink)"></span>Mix Voz: <strong>9%</strong>
+          </div>
+        </div>
+        <div class="wk-alloc" style="border-top: 2px solid var(--cyan)">
+          <div class="wk-label">Produto S11-S12</div>
+          <div class="wk-total" style="color:var(--text2);font-size:13px">Destino</div>
+          <div class="bar-row">
+            <div class="bar-seg" style="width:60%;background:var(--orange)">60%</div>
+            <div class="bar-seg" style="width:15%;background:var(--cyan)">15%</div>
+            <div class="bar-seg" style="width:11%;background:var(--green)">11%</div>
+            <div class="bar-seg" style="width:14%;background:var(--pink)">14%</div>
+          </div>
+          <div class="breakdown-lines">
+            <span class="dot" style="background:var(--orange)"></span>Reaper: <strong>60%</strong><br>
+            <span class="dot" style="background:var(--cyan)"></span>Isca: <strong>15%</strong><br>
+            <span class="dot" style="background:var(--green)"></span>Plugins: <strong>11%</strong><br>
+            <span class="dot" style="background:var(--pink)"></span>Mix Voz: <strong>14%</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-bar red">
+      <i class="fa-solid fa-shield-halved"></i>
+      <div class="content"><h4>Regra de segurança — piso contratual</h4>
+      <p>Toda sexta-feira: vendas da semana × ticket médio × 4 ≥ R$10.000? Se não, na segunda-feira reduza isca e produtos secundários para 5% e realoque tudo para o Reaper Total. Ele é quem sustenta o contrato.</p></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ -->
+  <!-- CRIATIVOS -->
+  <!-- ══════════════════════════════ -->
+  <section class="page-section" id="s-criativos">
+    <div class="section-hero">
+      <div class="eyebrow"><i class="fa-solid fa-wand-magic-sparkles"></i> &nbsp;Estratégia de criativos</div>
+      <h2>Do CPA R$52 para R$38 em 4 semanas</h2>
+      <p>6 ângulos de copy, rotina semanal de renovação e segmentação de remarketing por temperatura.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="info-card" style="border-top: 2px solid var(--orange);">
+        <h3 style="color:var(--orange)"><i class="fa-solid fa-fire"></i> Camp. 1 — Público Frio<span class="tag" style="background:var(--orange-dim);color:var(--orange)">56%</span></h3>
+        <p>CBO com 3-4 conjuntos. Interesses amplos: produção musical, DAW, home studio, beats. <strong>Só criativos já validados no lab</strong>. Objetivo: compra. R$700/semana.</p>
+      </div>
+      <div class="info-card" style="border-top: 2px solid var(--green);">
+        <h3 style="color:var(--green)"><i class="fa-solid fa-magnet"></i> Camp. 2 — Remarketing<span class="tag" style="background:var(--green-dim);color:var(--green)">30%</span></h3>
+        <p>ABO com 3 conjuntos por temperatura: checkout quente (meta CPA R$20-25), 75% vídeo (R$30-35), engajamento (R$35-40). Criativos diferentes por segmento. R$375/semana.</p>
+      </div>
+      <div class="info-card" style="border-top: 2px solid var(--purple);">
+        <h3 style="color:var(--purple)"><i class="fa-solid fa-flask"></i> Camp. 3 — Laboratório<span class="tag" style="background:var(--purple-dim);color:var(--purple)">14%</span></h3>
+        <p>ABO, R$25/dia por criativo. Testar 2 novos/semana. CPA &lt; R$40 com 2+ vendas em 3 dias = promover para Camp. 1. <strong>Nunca parar de testar</strong>. R$175/semana.</p>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;"><strong style="font-size:15px;">Os 6 ângulos de copy</strong></div>
+    <div class="angle-list">
+      <div class="angle-card"><div class="left"><div class="ac-tag" style="color:var(--orange)"><i class="fa-solid fa-bolt"></i> Ângulo 1 — Resultado Rápido</div><div class="ac-hook">"Do zero à primeira música em X dias"</div><div class="ac-pain">Ataca a ansiedade do iniciante que acha que vai demorar anos. Promessa de velocidade e tangibilidade imediata.</div></div><div class="right"><div class="ac-formats"><strong>Formatos:</strong><br>▶ Screencast acelerado: beat feita do zero no Reaper (30-60s)<br>▶ Reels: tela vazia → música tocando em 15s<br>▶ Imagem: print do projeto completo + "fiz em 7 dias"</div></div></div>
+      <div class="angle-card"><div class="left"><div class="ac-tag" style="color:var(--green)"><i class="fa-solid fa-piggy-bank"></i> Ângulo 2 — Economia</div><div class="ac-hook">"DAW profissional por R$60 vs Pro Tools R$2.500/ano"</div><div class="ac-pain">Ataca o medo de gastar demais. Reaper é a escolha inteligente — posicione como a DAW dos produtores sérios que não desperdiçam dinheiro.</div></div><div class="right"><div class="ac-formats"><strong>Formatos:</strong><br>▶ Carrossel: comparativo visual de DAWs (preço, recursos)<br>▶ Vídeo: "por que eu troquei FL Studio pelo Reaper"<br>▶ Imagem: tabela lado a lado com preços</div></div></div>
+      <div class="angle-card"><div class="left"><div class="ac-tag" style="color:var(--purple)"><i class="fa-solid fa-users"></i> Ângulo 3 — Prova Social</div><div class="ac-hook">"X alunos já produziram suas primeiras músicas"</div><div class="ac-pain">Ataca a insegurança com curso online. Prova com gente real que funciona.</div></div><div class="right"><div class="ac-formats"><strong>Formatos:</strong><br>▶ Vídeo: compilação de depoimentos de alunos (30-90s)<br>▶ Carrossel: prints de comentários e mensagens<br>▶ UGC: aluno mostrando o antes/depois da produção</div></div></div>
+      <div class="angle-card"><div class="left"><div class="ac-tag" style="color:var(--blue)"><i class="fa-solid fa-wrench"></i> Ângulo 4 — Dor Técnica</div><div class="ac-hook">"Sua mix está soando abafada? O problema é esse..."</div><div class="ac-pain">Ataca a frustração técnica. O produtor tenta mas o som não fica profissional. Problema identificável com fix imediato.</div></div><div class="right"><div class="ac-formats"><strong>Formatos:</strong><br>▶ Screencast: mostra o problema e o fix em tempo real<br>▶ Antes/depois: áudio abafado → áudio limpo<br>▶ Imagem: espectro antes/depois com EQ</div></div></div>
+      <div class="angle-card"><div class="left"><div class="ac-tag" style="color:var(--pink)"><i class="fa-solid fa-star"></i> Ângulo 5 — Aspiracional</div><div class="ac-hook">"Produtores iniciantes que hoje vivem de música"</div><div class="ac-pain">Ataca o sonho de viver de música. Transformação de vida real.</div></div><div class="right"><div class="ac-formats"><strong>Formatos:</strong><br>▶ Storytelling (1-2min): "eu trabalhava em X, hoje produzo para Y"<br>▶ Home studio simples → resultados profissionais<br>▶ Imagem: setup + números de streams ou clientes</div></div></div>
+      <div class="angle-card"><div class="left"><div class="ac-tag" style="color:var(--text3)"><i class="fa-solid fa-lightbulb"></i> Ângulo 6 — Tutorial / Curiosidade</div><div class="ac-hook">"3 plugins gratuitos que mudam tudo na sua mix"</div><div class="ac-pain">Entrega valor real no criativo, vende no CTA. Gera CTR alto e público mais qualificado.</div></div><div class="right"><div class="ac-formats"><strong>Formatos:</strong><br>▶ Tutorial curto (60-90s): ensina 1 técnica, CTA no final<br>▶ Carrossel: "5 erros que todo iniciante comete"<br>▶ Vídeo nativo: parece post orgânico, não anúncio</div></div></div>
+    </div>
+
+    <div style="margin-bottom:16px;"><strong style="font-size:15px;">Rotina semanal — 3h/semana</strong></div>
+    <div class="table-wrap" style="margin-bottom:24px">
+      <table>
+        <thead><tr><th>Dia</th><th>Ação</th><th>Tempo</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Segunda</strong></td><td>Revisar métricas. Matar criativos com CPA &gt; R$50 ou CTR &lt; 1%. Identificar o campeão da semana.</td><td>30 min</td></tr>
+          <tr><td><strong>Terça</strong></td><td>Gravar 1-2 criativos novos usando ângulo diferente do campeão. Se campeão é ângulo 4, teste ângulo 1 ou 6.</td><td>1-2h</td></tr>
+          <tr><td><strong>Quarta</strong></td><td>Editar e publicar na Campanha 3. R$25/dia cada criativo.</td><td>1h</td></tr>
+          <tr><td><strong>Sexta</strong></td><td>Check: CPA &lt; R$40 e 2+ vendas após 3 dias? Promover para Camp. 1. CPA ruim? Pausar.</td><td>20 min</td></tr>
+          <tr class="total-row"><td>Total</td><td>2-4 criativos testados, 1 promovido, 1-2 mortos por semana</td><td>~3h</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="rules-grid">
+      <div class="rule-card" style="border-top: 2px solid var(--red);"><h3 style="color:var(--red)"><i class="fa-solid fa-circle-pause"></i> Matar quando</h3><p>CPA &gt; R$50 após R$75 gastos. CTR &lt; 1% após 1.000 impressões. Frequência &gt; 3x no conjunto. Zero vendas após R$100. Não tenha dó — mate rápido.</p></div>
+      <div class="rule-card" style="border-top: 2px solid var(--green);"><h3 style="color:var(--green)"><i class="fa-solid fa-rocket"></i> Promover quando</h3><p>CPA &lt; R$40 com 3+ conversões. CTR &gt; 2%. Hook rate &gt; 30% em vídeo. Mover imediatamente para Campanha 1 com budget maior.</p></div>
+      <div class="rule-card" style="border-top: 2px solid var(--purple);"><h3 style="color:var(--purple)"><i class="fa-solid fa-recycle"></i> Reciclar (não matar)</h3><p>CTR bom mas CPA alto = hook funciona, página não converte. Testar nova headline. CPA era bom e subiu = fadiga — pausar 7-14 dias e religar.</p></div>
+      <div class="rule-card" style="border-top: 2px solid var(--orange);"><h3 style="color:var(--orange)"><i class="fa-solid fa-copy"></i> Iterar no campeão</h3><p>CPA &lt; R$35? Fazer 3 variações: (1) mesmo vídeo + headline diferente, (2) mesmo roteiro + outro ângulo de câmera, (3) mesmo conteúdo + formato diferente.</p></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ -->
+  <!-- CENÁRIOS -->
+  <!-- ══════════════════════════════ -->
+  <section class="page-section" id="s-cenarios">
+    <div class="section-hero">
+      <div class="eyebrow"><i class="fa-solid fa-chart-line"></i> &nbsp;Cenários &amp; Projeções</div>
+      <h2>3 cenários para os próximos 3 meses</h2>
+      <p>Todos respeitam o piso de R$10k/mês na Hotmart. Diferença entre cenários: velocidade de redução do CPA e aumento do ticket.</p>
+    </div>
+
+    <div class="scenario-grid">
+      <div class="sc-card" style="border-top:3px solid var(--blue)">
+        <div class="sc-tag" style="color:var(--blue)">Conservador · crescimento 15-20%</div>
+        <div class="sc-lucro" style="color:var(--blue)">R$3.200</div>
+        <div class="sc-sub">lucro no mês 3</div>
+        <div class="sc-rows">
+          <div class="sc-row"><span>Faturamento bruto</span><span class="v">R$14.500</span></div>
+          <div class="sc-row"><span>Ticket médio</span><span class="v">R$62</span></div>
+          <div class="sc-row"><span>CPA médio</span><span class="v">R$42</span></div>
+          <div class="sc-row"><span>Tráfego/mês</span><span class="v">R$7.700</span></div>
+          <div class="sc-row"><span>Vendas email/org</span><span class="v">10/mês</span></div>
+          <div class="sc-row"><span>Margem líquida</span><span class="v" style="color:var(--green)">22%</span></div>
+        </div>
+      </div>
+      <div class="sc-card" style="border-top:3px solid var(--green)">
+        <div class="sc-tag" style="color:var(--green)">Realista · crescimento 30-40%</div>
+        <div class="sc-lucro" style="color:var(--green)">R$5.800</div>
+        <div class="sc-sub">lucro no mês 3</div>
+        <div class="sc-rows">
+          <div class="sc-row"><span>Faturamento bruto</span><span class="v">R$19.500</span></div>
+          <div class="sc-row"><span>Ticket médio</span><span class="v">R$68</span></div>
+          <div class="sc-row"><span>CPA médio</span><span class="v">R$38</span></div>
+          <div class="sc-row"><span>Tráfego/mês</span><span class="v">R$9.500</span></div>
+          <div class="sc-row"><span>Vendas email/org</span><span class="v">25/mês</span></div>
+          <div class="sc-row"><span>Margem líquida</span><span class="v" style="color:var(--green)">28%</span></div>
+        </div>
+      </div>
+      <div class="sc-card" style="border-top:3px solid var(--purple)">
+        <div class="sc-tag" style="color:var(--purple)">Otimista · crescimento 50%+</div>
+        <div class="sc-lucro" style="color:var(--purple)">R$8.400</div>
+        <div class="sc-sub">lucro no mês 3</div>
+        <div class="sc-rows">
+          <div class="sc-row"><span>Faturamento bruto</span><span class="v">R$24.500</span></div>
+          <div class="sc-row"><span>Ticket médio</span><span class="v">R$75</span></div>
+          <div class="sc-row"><span>CPA médio</span><span class="v">R$35</span></div>
+          <div class="sc-row"><span>Tráfego/mês</span><span class="v">R$11.000</span></div>
+          <div class="sc-row"><span>Vendas email/org</span><span class="v">35/mês</span></div>
+          <div class="sc-row"><span>Margem líquida</span><span class="v" style="color:var(--green)">32%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>Projeção de lucro mensal — 12 semanas · 3 cenários</h3>
+      <canvas id="cenariosChart" height="220"></canvas>
+    </div>
+
+    <div class="alert-bar green">
+      <i class="fa-solid fa-trophy"></i>
+      <div class="content"><h4>Onde você estará em 12 semanas (cenário realista)</h4>
+      <p>Faturamento R$19-21k/mês (2x o atual). Lucro R$5.800+/mês (vs R$198 hoje). Margem 28% (vs 1,6%). Reserva R$12.000+. Zero antecipação. 3 fontes de receita. Esteira com 8 produtos. Base para R$15-30k de lucro nos meses 4-8.</p></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ -->
+  <!-- MÉTRICAS -->
+  <!-- ══════════════════════════════ -->
+  <section class="page-section" id="s-metricas">
+    <div class="section-hero">
+      <div class="eyebrow"><i class="fa-solid fa-sliders"></i> &nbsp;Painel de métricas</div>
+      <h2>O que acompanhar e quando agir</h2>
+      <p>Revisar todo segunda-feira. Se 2+ métricas estiverem no vermelho, agir imediatamente antes de qualquer outra coisa.</p>
+    </div>
+
+    <div class="metrics-board">
+      <div class="mb-header"><i class="fa-solid fa-circle-exclamation" style="margin-right:6px;color:var(--red)"></i> Métricas de alerta — verificar toda sexta-feira</div>
+      <div class="mb-row"><div class="mb-name">Faturamento semanal</div><div class="mb-target" style="color:var(--green)">≥ R$2.500</div><div class="mb-action">Se &lt; R$2.500: revisar criativos e CPA imediatamente</div></div>
+      <div class="mb-row"><div class="mb-name">Vendas semanais (piso Hotmart)</div><div class="mb-target" style="color:var(--green)">≥ 47 vendas</div><div class="mb-action">Se &lt; 47: realoque tráfego 100% para Reaper Total</div></div>
+      <div class="mb-row"><div class="mb-name">CPA geral (todas campanhas)</div><div class="mb-target" style="color:var(--orange)">≤ R$42</div><div class="mb-action">Se &gt; R$50: matar criativos fracos, escalar campeões</div></div>
+      <div class="mb-row"><div class="mb-name">Taxa de reembolso</div><div class="mb-target" style="color:var(--green)">&lt; 2%</div><div class="mb-action">Se &gt; 3%: checar página de vendas e promessas</div></div>
+      <div class="mb-row"><div class="mb-name">Saldo de reserva</div><div class="mb-target" style="color:var(--green)">&gt; R$5.000</div><div class="mb-action">Se &lt; R$3k: reduzir tráfego em 15% até recompor</div></div>
+    </div>
+
+    <div class="metrics-board">
+      <div class="mb-header"><i class="fa-solid fa-chart-line" style="margin-right:6px;color:var(--green)"></i> Métricas de tráfego — verificar diariamente</div>
+      <div class="mb-row"><div class="mb-name">CPM (custo por mil impressões)</div><div class="mb-target" style="color:var(--green)">&lt; R$30</div><div class="mb-action">Alto = público muito concorrido, ampliar segmentação</div></div>
+      <div class="mb-row"><div class="mb-name">CPC (custo por clique)</div><div class="mb-target" style="color:var(--green)">&lt; R$1,50</div><div class="mb-action">Alto = hook do criativo fraco, trocar vídeo/imagem</div></div>
+      <div class="mb-row"><div class="mb-name">CTR (taxa de clique)</div><div class="mb-target" style="color:var(--orange)">&gt; 1,5%</div><div class="mb-action">Alarme se &lt; 1%: criativo não está chamando atenção</div></div>
+      <div class="mb-row"><div class="mb-name">Frequência do anúncio</div><div class="mb-target" style="color:var(--orange)">&lt; 3x</div><div class="mb-action">&gt; 3x: fadiga criativa — adicionar novo criativo urgente</div></div>
+      <div class="mb-row"><div class="mb-name">Hook rate (vídeo — primeiros 3s)</div><div class="mb-target" style="color:var(--green)">&gt; 30%</div><div class="mb-action">&lt; 20%: refilmar abertura do vídeo</div></div>
+    </div>
+
+    <div class="metrics-board">
+      <div class="mb-header"><i class="fa-solid fa-money-bill-trend-up" style="margin-right:6px;color:var(--gold)"></i> Métricas financeiras — verificar semanalmente</div>
+      <div class="mb-row"><div class="mb-name">ROAS bruto</div><div class="mb-target" style="color:var(--orange)">&gt; 2,0x</div><div class="mb-action">Escalar tráfego só acima de 2,0x por 2 semanas seguidas</div></div>
+      <div class="mb-row"><div class="mb-name">% tráfego / faturamento</div><div class="mb-target" style="color:var(--orange)">&lt; 50%</div><div class="mb-action">Se &gt; 60%: reduzir tráfego ou aumentar ticket com urgência</div></div>
+      <div class="mb-row"><div class="mb-name">Lucro operacional semanal</div><div class="mb-target" style="color:var(--green)">Positivo</div><div class="mb-action">Se negativo: campanha ruim, agir em 24h</div></div>
+      <div class="mb-row"><div class="mb-name">Taxa conversão bumps (média)</div><div class="mb-target" style="color:var(--green)">&gt; 22%</div><div class="mb-action">&lt; 15%: revisar copy e posicionamento dos bumps</div></div>
+      <div class="mb-row"><div class="mb-name">Taxa conversão upsell</div><div class="mb-target" style="color:var(--green)">&gt; 13%</div><div class="mb-action">&lt; 10%: revisar VSL ou oferta do upsell</div></div>
+    </div>
+
+    <div class="metrics-board">
+      <div class="mb-header"><i class="fa-solid fa-seedling" style="margin-right:6px;color:var(--green)"></i> Métricas de crescimento — verificar mensalmente</div>
+      <div class="mb-row"><div class="mb-name">Leads capturados / mês (isca)</div><div class="mb-target" style="color:var(--green)">Crescendo</div><div class="mb-action">Meta: 300-500 leads/mês no mês 3</div></div>
+      <div class="mb-row"><div class="mb-name">Vendas por email / mês</div><div class="mb-target" style="color:var(--green)">Crescendo</div><div class="mb-action">Meta: 20-25 vendas/mês no mês 3 (CAC zero)</div></div>
+      <div class="mb-row"><div class="mb-name">Ticket médio mensal</div><div class="mb-target" style="color:var(--gold)">Subindo</div><div class="mb-action">Alarme se cair por 2 semanas seguidas</div></div>
+      <div class="mb-row"><div class="mb-name">Reserva de caixa</div><div class="mb-target" style="color:var(--gold)">Crescendo</div><div class="mb-action">Meta: R$12.000+ no mês 3 (5 semanas de tráfego)</div></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ -->
+  <!-- REGRAS -->
+  <!-- ══════════════════════════════ -->
+  <section class="page-section" id="s-regras">
+    <div class="section-hero">
+      <div class="eyebrow"><i class="fa-solid fa-shield-halved"></i> &nbsp;Regras de ouro</div>
+      <h2>As regras que nunca podem ser quebradas</h2>
+      <p>Decisões rápidas para situações de risco. Internalizar essas regras protege a operação de erros que custam semanas de recuperação.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="info-card" style="border-top:3px solid var(--red)">
+        <h3 style="color:var(--red)"><i class="fa-solid fa-lock"></i> Regra 1 — Piso Hotmart: R$10k/mês</h3>
+        <p>Se o faturamento ameaçar cair abaixo de R$10k, <strong>não corte tráfego</strong>. Em vez disso: reative criativos antigos que funcionaram, aumente budget do remarketing, envie email promocional para a lista de leads. A taxa de 9% é valiosa demais para perder.</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--orange)">
+        <h3 style="color:var(--orange)"><i class="fa-solid fa-ban"></i> Regra 2 — Nunca mais antecipar</h3>
+        <p>A partir da semana 5, zero antecipação. Se precisar antecipar, é sinal de que a reserva está baixa demais — reduza o tráfego em 10% até recompor. Exceto se o faturamento estiver ameaçando o piso de R$10k.</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--gold)">
+        <h3 style="color:var(--gold)"><i class="fa-solid fa-scale-balanced"></i> Regra 3 — Tráfego ≤ 50% da receita</h3>
+        <p>Tráfego + imposto Meta nunca deve ultrapassar 50% do faturamento bruto. Hoje está em 71% — meta é chegar a 45-50% até a semana 8 via aumento de ticket e redução de CPA.</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--purple)">
+        <h3 style="color:var(--purple)"><i class="fa-solid fa-chart-line"></i> Regra 4 — Só escalar com ROAS ≥ 2.0x</h3>
+        <p>Aumentar tráfego além do nível atual só quando o ROAS bruto estiver acima de 2.0x por 2 semanas consecutivas. Escalar com ROAS menor é queimar dinheiro — otimize primeiro, escale depois.</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--blue)">
+        <h3 style="color:var(--blue)"><i class="fa-solid fa-flask"></i> Regra 5 — Lab nunca abaixo de 13%</h3>
+        <p>A campanha de laboratório deve receber no mínimo 13% do budget sempre. Parar de testar criativos é a principal causa de fadiga e CPA crescente. 2 criativos novos testados por semana é o mínimo.</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--green)">
+        <h3 style="color:var(--green)"><i class="fa-solid fa-piggy-bank"></i> Regra 6 — Reserva mínima: 4 semanas</h3>
+        <p>A reserva de caixa deve ser sempre ≥ 4 semanas de investimento em tráfego. Se cair abaixo disso: cortar tráfego em 15% imediatamente até recompor. Operar sem reserva é operar no fio da navalha.</p>
+      </div>
+    </div>
+
+    <div class="alert-bar gold">
+      <i class="fa-solid fa-star"></i>
+      <div class="content">
+        <h4>A regra mais importante de todas</h4>
+        <p>Toda sexta-feira, 15 minutos: abrir o Gerenciador de Anúncios + Hotmart + extrato bancário e responder: <strong>(1) Faturamento semanal ≥ R$2.500? (2) CPA ≤ R$42? (3) Reserva cresceu?</strong> Se 2 das 3 forem SIM, está no caminho. Se 2 das 3 forem NÃO, segunda-feira é dia de ação imediata — não de planejamento.</p>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /main -->
+
+<!-- ─── SCRIPTS ─── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ─── Navigation ───
+const SECTION_LABELS = {
+  overview: 'Dashboard', dre: 'DRE & KPIs',
+  plano: 'Plano 12 Semanas', produtos: 'Esteira de Produtos',
+  trafego: 'Alocação de Tráfego', criativos: 'Estratégia de Criativos',
+  cenarios: 'Cenários & Projeções', metricas: 'Painel de Métricas', regras: 'Regras de Ouro'
+};
+
+function show(id) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => { if (n.getAttribute('onclick')?.includes(id)) n.classList.add('active'); });
+  document.getElementById('breadcrumb-text').textContent = SECTION_LABELS[id] || id;
+  window.scrollTo(0, 0);
+  if (id === 'dre') initDreChart();
+  if (id === 'cenarios') initCenariosChart();
+  if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+// ─── Charts ───
+const CHART_DEFAULTS = {
+  color: 'rgba(255,255,255,0.55)',
+  borderColor: 'rgba(255,255,255,0.06)',
+};
+Chart.defaults.color = CHART_DEFAULTS.color;
+Chart.defaults.borderColor = CHART_DEFAULTS.borderColor;
+
+// Overview chart — weekly lucro progression
+(function() {
+  const weeks = ['S1','S2','S3','S4','S5','S6','S7','S8','S9','S10','S11','S12'];
+  const real = [400, 600, 850, 1200, 1600, 2100, 2600, 3500, 4100, 4800, 5500, 5800];
+  const cons = [300, 450, 650, 900, 1100, 1400, 1800, 2200, 2600, 2900, 3100, 3200];
+  const oti  = [500, 900, 1400, 2100, 2800, 3600, 4500, 5500, 6500, 7200, 7900, 8400];
+
+  new Chart(document.getElementById('overviewChart'), {
+    type: 'line',
+    data: {
+      labels: weeks,
+      datasets: [
+        { label: 'Otimista', data: oti, borderColor: '#9B7FE8', backgroundColor: 'rgba(155,127,232,0.05)', fill: true, tension: 0.4, pointRadius: 3, borderWidth: 1.5, borderDash: [4,3] },
+        { label: 'Realista', data: real, borderColor: '#3ECFA0', backgroundColor: 'rgba(62,207,160,0.08)', fill: true, tension: 0.4, pointRadius: 4, borderWidth: 2.5 },
+        { label: 'Conservador', data: cons, borderColor: '#5B9EF5', backgroundColor: 'rgba(91,158,245,0.05)', fill: true, tension: 0.4, pointRadius: 3, borderWidth: 1.5, borderDash: [4,3] },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 16, font: { size: 12 } } }, tooltip: { callbacks: { label: c => c.dataset.label + ': R$ ' + c.parsed.y.toLocaleString('pt-BR') } } },
+      scales: { y: { ticks: { callback: v => 'R$' + (v/1000).toFixed(0) + 'k', font: { size: 11, family: 'DM Mono' } }, grid: { color: 'rgba(255,255,255,0.04)' } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } }
+    }
+  });
+})();
+
+function initDreChart() {
+  if (document.getElementById('dreChart').chart) return;
+  const c = document.getElementById('dreChart');
+  c.chart = new Chart(c, {
+    type: 'doughnut',
+    data: {
+      labels: ['Tráfego + imp. Meta (71,1%)', 'Taxa Hotmart + antecip. (10,8%)', 'Impostos (6%)', 'Fixos (9,5%)', 'Lucro (1,6%)', 'Reembolsos (1%)'],
+      datasets: [{ data: [8800, 1339, 742, 1167, 198, 124], backgroundColor: ['#E8604C','#F5904A','#E8C96A','#5B9EF5','#3ECFA0','#9B7FE8'], borderWidth: 0, hoverOffset: 6 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true, cutout: '68%',
+      plugins: { legend: { position: 'right', labels: { boxWidth: 10, padding: 10, font: { size: 12 } } }, tooltip: { callbacks: { label: c => ' R$ ' + c.raw.toLocaleString('pt-BR') } } }
+    }
+  });
+}
+
+function initCenariosChart() {
+  if (document.getElementById('cenariosChart').chart) return;
+  const c = document.getElementById('cenariosChart');
+  const months = ['Mês 1','Mês 2','Mês 3'];
+  c.chart = new Chart(c, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Conservador', data: [900, 2000, 3200], backgroundColor: 'rgba(91,158,245,0.6)', borderColor: '#5B9EF5', borderWidth: 1.5, borderRadius: 6 },
+        { label: 'Realista', data: [1200, 3100, 5800], backgroundColor: 'rgba(62,207,160,0.6)', borderColor: '#3ECFA0', borderWidth: 1.5, borderRadius: 6 },
+        { label: 'Otimista', data: [1600, 4200, 8400], backgroundColor: 'rgba(155,127,232,0.6)', borderColor: '#9B7FE8', borderWidth: 1.5, borderRadius: 6 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 16 } }, tooltip: { callbacks: { label: c => c.dataset.label + ': R$ ' + c.parsed.y.toLocaleString('pt-BR') } } },
+      scales: { y: { ticks: { callback: v => 'R$' + (v/1000).toFixed(0) + 'k', font: { size: 11, family: 'DM Mono' } }, grid: { color: 'rgba(255,255,255,0.04)' } }, x: { grid: { display: false } } }
+    }
+  });
+}
+</script>
+</body>
+</html>

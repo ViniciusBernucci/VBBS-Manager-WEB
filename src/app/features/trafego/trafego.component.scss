@@ -1,0 +1,40 @@
+.trafego-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.sub-nav {
+  display: flex;
+  border-bottom: 1px solid #2a2f40;
+  padding: 0 1.5rem;
+  flex-shrink: 0;
+}
+
+.sub-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.25rem;
+  color: #8c93a8;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s;
+
+  &.active {
+    color: #c8cdd8;
+    border-bottom-color: #3ecfa0;
+  }
+
+  &:hover:not(.active) {
+    color: #a8afbf;
+  }
+}
+
+.sub-content {
+  flex: 1;
+  overflow: auto;
+}

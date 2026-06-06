@@ -1,0 +1,64 @@
+<p-toast />
+
+<div class="page">
+
+  <div class="page-header">
+    <div class="header-left">
+      <h2 class="page-title">Resumo do dia</h2>
+      @if (data(); as d) {
+        <span class="sync-info">
+          <i class="pi pi-check-circle"></i>
+          Sincronizado às {{ formatTime(d.lastSyncedAt) }} · {{ formatDate(d.date) }}
+        </span>
+      }
+    </div>
+
+    <p-button
+      label="Atualizar dados de vendas"
+      icon="pi pi-refresh"
+      [loading]="syncing()"
+      [disabled]="loading()"
+      (onClick)="sync()"
+    />
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner"></i>
+      Carregando dados do dia...
+    </div>
+  } @else if (!data()) {
+    <div class="empty-state">
+      <i class="pi pi-chart-bar"></i>
+      <p>Nenhum dado sincronizado hoje.</p>
+      <p class="hint">Clique em "Atualizar dados de vendas" para buscar os dados atuais da Hotmart.</p>
+    </div>
+  } @else {
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <span class="kpi-label">Vendas do dia</span>
+        <span class="kpi-value">{{ data()!.totalSales }}</span>
+        <span class="kpi-note">unidades vendidas</span>
+      </div>
+
+      <div class="kpi-card highlight">
+        <span class="kpi-label">Faturamento bruto</span>
+        <span class="kpi-value">{{ brl(data()!.grossRevenue) }}</span>
+        <span class="kpi-note">receita total Hotmart</span>
+      </div>
+
+      <div class="kpi-card positive">
+        <span class="kpi-label">Receita líquida</span>
+        <span class="kpi-value">{{ brl(data()!.netRevenue) }}</span>
+        <span class="kpi-note">após taxa Hotmart</span>
+      </div>
+
+      <div class="kpi-card">
+        <span class="kpi-label">Taxa Hotmart</span>
+        <span class="kpi-value negative">{{ brl(data()!.hotmartFeeAmount) }}</span>
+        <span class="kpi-note">comissão deduzida</span>
+      </div>
+    </div>
+  }
+
+</div>

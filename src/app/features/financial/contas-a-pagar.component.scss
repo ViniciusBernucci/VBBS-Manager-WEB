@@ -1,0 +1,211 @@
+.page {
+  padding: 1.5rem;
+  max-width: 900px;
+}
+
+.list-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+// Monthly tab
+.monthly-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.month-label {
+  font-size: 1rem;
+  font-weight: 500;
+  min-width: 160px;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.monthly-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.ms-card {
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  &.paid {
+    background: rgba(62, 207, 160, 0.06);
+    border: 1px solid rgba(62, 207, 160, 0.15);
+  }
+  &.pending {
+    background: rgba(232, 173, 76, 0.06);
+    border: 1px solid rgba(232, 173, 76, 0.15);
+  }
+}
+
+.ms-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8c93a8;
+}
+
+.ms-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  .paid & { color: #3ecfa0; }
+  .pending & { color: #e8ad4c; }
+}
+
+.pending-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  background: #e8604c;
+  border-radius: 9px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  margin-left: 6px;
+  padding: 0 4px;
+}
+
+.paid-info {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+.paid-date {
+  font-size: 0.75rem;
+  color: #8c93a8;
+}
+
+.muted { color: #545c73; }
+
+.total-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  background: rgba(232, 96, 76, 0.06);
+  border: 1px solid rgba(232, 96, 76, 0.15);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: #8c93a8;
+}
+
+.total-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e8604c;
+}
+
+:host ::ng-deep .cp-table {
+  .p-datatable-thead > tr > th {
+    background: transparent;
+    color: #8c93a8;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-color: #2a2f40;
+    padding: 0.6rem 1rem;
+  }
+
+  .p-datatable-tbody > tr > td {
+    border-color: #2a2f40;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .p-datatable-tbody > tr.inactive-row > td {
+    opacity: 0.45;
+  }
+
+  .p-datatable-tbody > tr:hover > td {
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+.col-amount {
+  text-align: right;
+  width: 130px;
+  font-weight: 600;
+}
+
+.col-status {
+  width: 90px;
+}
+
+.col-actions {
+  width: 110px;
+  text-align: right;
+}
+
+.expense-text { color: #e8604c; }
+
+.cat-label {
+  font-size: 0.78rem;
+  color: #8c93a8;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4rem 2rem;
+  color: #545c73;
+  gap: 0.75rem;
+  .pi { font-size: 2.5rem; }
+  p { margin: 0; }
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+  color: #8c93a8;
+  font-size: 2rem;
+}
+
+.drawer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.5rem 0;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  label {
+    font-size: 0.8rem;
+    color: #8c93a8;
+    font-weight: 500;
+  }
+}
+
+.drawer-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 1rem;
+}

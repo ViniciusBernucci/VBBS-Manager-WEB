@@ -1,0 +1,249 @@
+.cash-flow-page {
+  padding: 1.5rem;
+  max-width: 960px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+// Month navigation
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.month-label {
+  font-size: 1.1rem;
+  font-weight: 500;
+  min-width: 180px;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+// Summary cards
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.summary-card {
+  background: #1a1f2e;
+  border: 1px solid #2a2f40;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &.closing {
+    border-color: #3a3f50;
+  }
+}
+
+.summary-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: -0.25rem;
+}
+
+.summary-label {
+  font-size: 0.75rem;
+  color: #8c93a8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.summary-value {
+  font-size: 1.375rem;
+  font-weight: 700;
+
+  &.neutral { color: #c8cdd8; }
+  &.income  { color: #3ecfa0; }
+  &.expense { color: #e8604c; }
+}
+
+// Table sections
+.table-section {
+  margin-bottom: 1.5rem;
+  border: 1px solid #2a2f40;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  .section-total {
+    margin-left: auto;
+    font-weight: 700;
+  }
+
+  &.income-header {
+    background: rgba(62, 207, 160, 0.08);
+    color: #3ecfa0;
+    border-bottom: 1px solid rgba(62, 207, 160, 0.15);
+  }
+
+  &.expense-header {
+    background: rgba(232, 96, 76, 0.08);
+    color: #e8604c;
+    border-bottom: 1px solid rgba(232, 96, 76, 0.15);
+  }
+}
+
+:host ::ng-deep .cf-table {
+  .p-datatable-thead > tr > th {
+    background: #13172200;
+    color: #8c93a8;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-color: #2a2f40;
+    padding: 0.6rem 1rem;
+  }
+
+  .p-datatable-tbody > tr > td {
+    border-color: #2a2f40;
+    padding: 0.65rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .p-datatable-tbody > tr:hover > td {
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+.col-date {
+  width: 90px;
+  color: #8c93a8;
+  font-size: 0.8rem !important;
+}
+
+.col-amount {
+  text-align: right;
+  font-weight: 600;
+  width: 130px;
+}
+
+.col-actions {
+  width: 80px;
+  text-align: right;
+}
+
+.income-text { color: #3ecfa0; }
+.expense-text { color: #e8604c; }
+
+.cat-label {
+  font-size: 0.78rem;
+  color: #8c93a8;
+}
+
+// Empty state
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #545c73;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+
+  p { margin: 0; }
+}
+
+// Loading
+.loading-overlay {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+  color: #8c93a8;
+}
+
+// Setup dialog
+.setup-hint {
+  color: #8c93a8;
+  font-size: 0.875rem;
+  margin: 0 0 1.5rem;
+}
+
+.setup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.setup-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  label {
+    font-size: 0.8rem;
+    color: #8c93a8;
+    font-weight: 500;
+  }
+}
+
+// Drawer form
+.drawer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.5rem 0;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  label {
+    font-size: 0.8rem;
+    color: #8c93a8;
+    font-weight: 500;
+  }
+}
+
+.drawer-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 1rem;
+}
+
+.optional {
+  font-size: 0.72rem;
+  color: #545c73;
+  font-weight: 400;
+}
+
+:host ::ng-deep .type-toggle {
+  .p-selectbutton .p-button {
+    flex: 1;
+  }
+}

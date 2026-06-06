@@ -1,0 +1,24 @@
+<div class="financial-shell">
+  <nav class="sub-nav">
+    <a routerLink="resumo" routerLinkActive="active" class="sub-nav-item">
+      <i class="pi pi-chart-bar"></i>
+      Resumo
+    </a>
+    <a routerLink="dre" routerLinkActive="active" class="sub-nav-item">
+      <i class="pi pi-chart-line"></i>
+      DRE
+    </a>
+    <a routerLink="cash-flow" routerLinkActive="active" class="sub-nav-item">
+      <i class="pi pi-arrow-right-arrow-left"></i>
+      Fluxo de Caixa
+    </a>
+    <a routerLink="contas-a-pagar" routerLinkActive="active" class="sub-nav-item">
+      <i class="pi pi-receipt"></i>
+      Contas a Pagar
+    </a>
+  </nav>
+
+  <div class="sub-content">
+    <router-outlet />
+  </div>
+</div>

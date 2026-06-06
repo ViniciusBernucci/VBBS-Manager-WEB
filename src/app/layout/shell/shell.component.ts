@@ -23,7 +23,9 @@ export class ShellComponent {
 
   readonly navItems: NavItem[] = [
     { label: 'Overview', icon: 'pi pi-home', route: '/dashboard' },
+    { label: 'Planejamento', icon: 'pi pi-map', route: '/planning' },
     { label: 'Financeiro', icon: 'pi pi-wallet', route: '/financial' },
+    { label: 'Tráfego', icon: 'pi pi-megaphone', route: '/trafego' },
     { label: 'Criativos', icon: 'pi pi-image', route: '/creatives' },
     { label: 'Funil', icon: 'pi pi-filter', route: '/funnel' },
     { label: 'Alertas', icon: 'pi pi-bell', route: '/alerts' },

@@ -1,0 +1,300 @@
+<p-toast />
+
+<!-- Setup Dialog -->
+<p-dialog
+  [header]="cashFlow()?.isConfigured ? 'Editar Saldo Inicial' : 'Configurar Fluxo de Caixa'"
+  [(visible)]="setupVisible"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '440px' }"
+>
+  <p class="setup-hint">Defina o mês inicial e o saldo de caixa naquele momento.</p>
+
+  <div class="setup-form">
+    <div class="setup-row">
+      <label>Mês inicial</label>
+      <p-select
+        [(ngModel)]="setupMonth"
+        [options]="monthOptions"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="w-full"
+      />
+    </div>
+
+    <div class="setup-row">
+      <label>Ano inicial</label>
+      <p-inputnumber
+        [(ngModel)]="setupYear"
+        [useGrouping]="false"
+        [min]="2020"
+        [max]="2100"
+        styleClass="w-full"
+      />
+    </div>
+
+    <div class="setup-row">
+      <label>Saldo inicial (R$)</label>
+      <p-inputnumber
+        [(ngModel)]="setupBalance"
+        mode="currency"
+        currency="BRL"
+        locale="pt-BR"
+        styleClass="w-full"
+      />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Confirmar"
+      icon="pi pi-check"
+      (onClick)="saveSetup()"
+      [loading]="saving()"
+    />
+  </ng-template>
+</p-dialog>
+
+<!-- Transaction Drawer -->
+<p-drawer
+  [header]="drawerTitle()"
+  [(visible)]="drawerVisible"
+  position="right"
+  [style]="{ width: '420px' }"
+>
+  <div class="drawer-form">
+    <div class="form-field">
+      <label>Tipo</label>
+      <p-selectbutton
+        [(ngModel)]="form.type"
+        [options]="typeOptions"
+        optionLabel="label"
+        optionValue="value"
+        (ngModelChange)="onTypeChange()"
+        styleClass="type-toggle w-full"
+      />
+    </div>
+
+    <div class="form-field">
+      <label>Categoria</label>
+      <p-select
+        [(ngModel)]="form.category"
+        [options]="categoryOptions()"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="w-full"
+      />
+    </div>
+
+    <div class="form-field">
+      <label>Data</label>
+      <p-datepicker
+        [(ngModel)]="form.date"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        styleClass="w-full"
+      />
+    </div>
+
+    <div class="form-field">
+      <label>Descrição</label>
+      <input
+        pInputText
+        [(ngModel)]="form.description"
+        placeholder="Ex: Campanha julho"
+        class="w-full"
+      />
+    </div>
+
+    <div class="form-field">
+      <label>Valor (R$)</label>
+      <p-inputnumber
+        [(ngModel)]="form.amount"
+        mode="currency"
+        currency="BRL"
+        locale="pt-BR"
+        [min]="0"
+        styleClass="w-full"
+      />
+    </div>
+
+    @if (form.type === 'Expense' && unpaidFixedOptions().length > 0) {
+      <div class="form-field">
+        <label>Vincular a gasto fixo <span class="optional">(opcional)</span></label>
+        <p-select
+          [(ngModel)]="form.fixedExpenseId"
+          [options]="[{ label: '— Nenhum —', value: null }, ...unpaidFixedOptions()]"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="w-full"
+        />
+      </div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="drawer-footer">
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        (onClick)="drawerVisible.set(false)"
+      />
+      <p-button
+        label="Salvar"
+        icon="pi pi-check"
+        (onClick)="saveTransaction()"
+        [loading]="saving()"
+      />
+    </div>
+  </ng-template>
+</p-drawer>
+
+<!-- Main Content -->
+<div class="cash-flow-page">
+  <!-- Header -->
+  <div class="page-header">
+    <h2 class="page-title">Fluxo de Caixa</h2>
+    <p-button
+      label="Novo Lançamento"
+      icon="pi pi-plus"
+      (onClick)="openCreate()"
+      [disabled]="!cashFlow()?.isConfigured"
+    />
+  </div>
+
+  <!-- Month navigation -->
+  <div class="month-nav">
+    <p-button icon="pi pi-chevron-left" [text]="true" (onClick)="prevMonth()" />
+    <span class="month-label">{{ monthLabel() }}</span>
+    <p-button icon="pi pi-chevron-right" [text]="true" (onClick)="nextMonth()" />
+  </div>
+
+  <!-- Summary cards -->
+  @if (cashFlow()?.isConfigured) {
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <span class="summary-label">Saldo Inicial</span>
+          <p-button
+            icon="pi pi-pencil"
+            [text]="true"
+            size="small"
+            (onClick)="openEditConfig()"
+            pTooltip="Editar saldo inicial"
+            tooltipPosition="top"
+          />
+        </div>
+        <span class="summary-value neutral">{{ brl(cashFlow()!.openingBalance) }}</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Entradas</span>
+        <span class="summary-value income">{{ brl(cashFlow()!.totalIncome) }}</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Saídas</span>
+        <span class="summary-value expense">{{ brl(cashFlow()!.totalExpense) }}</span>
+      </div>
+      <div class="summary-card closing">
+        <span class="summary-label">Saldo Final</span>
+        <span
+          class="summary-value"
+          [class.income]="isPositiveBalance(cashFlow()!.closingBalance)"
+          [class.expense]="!isPositiveBalance(cashFlow()!.closingBalance)"
+        >
+          {{ brl(cashFlow()!.closingBalance) }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Income table -->
+    @if (incomeTransactions().length > 0) {
+      <div class="table-section">
+        <div class="section-header income-header">
+          <span class="pi pi-arrow-down-left"></span>
+          <span>Entradas</span>
+          <span class="section-total">{{ brl(cashFlow()!.totalIncome) }}</span>
+        </div>
+        <p-table [value]="incomeTransactions()" styleClass="cf-table">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th>Categoria</th>
+              <th class="col-amount">Valor</th>
+              <th class="col-actions"></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-t>
+            <tr>
+              <td class="col-date">{{ formatDate(t.date) }}</td>
+              <td>{{ t.description }}</td>
+              <td><span class="cat-label">{{ t.categoryLabel }}</span></td>
+              <td class="col-amount income-text">{{ brl(t.amount) }}</td>
+              <td class="col-actions">
+                <p-button icon="pi pi-pencil" [text]="true" size="small" (onClick)="openEdit(t)" />
+                <p-button icon="pi pi-trash" [text]="true" size="small" severity="danger" (onClick)="deleteTransaction(t.id)" />
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    }
+
+    <!-- Expense table -->
+    @if (expenseTransactions().length > 0) {
+      <div class="table-section">
+        <div class="section-header expense-header">
+          <span class="pi pi-arrow-up-right"></span>
+          <span>Saídas</span>
+          <span class="section-total">{{ brl(cashFlow()!.totalExpense) }}</span>
+        </div>
+        <p-table [value]="expenseTransactions()" styleClass="cf-table">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th>Categoria</th>
+              <th class="col-amount">Valor</th>
+              <th class="col-actions"></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-t>
+            <tr>
+              <td class="col-date">{{ formatDate(t.date) }}</td>
+              <td>{{ t.description }}</td>
+              <td><span class="cat-label">{{ t.categoryLabel }}</span></td>
+              <td class="col-amount expense-text">{{ brl(t.amount) }}</td>
+              <td class="col-actions">
+                @if (t.isFixed) {
+                  @if (t.isPaid) {
+                    <p-tag value="Pago" severity="success" />
+                  } @else {
+                    <p-button label="Pagar" icon="pi pi-check" size="small"
+                      severity="success" (onClick)="openPayFromCashFlow(t)" />
+                  }
+                } @else {
+                  <p-button icon="pi pi-pencil" [text]="true" size="small" (onClick)="openEdit(t)" />
+                  <p-button icon="pi pi-trash" [text]="true" size="small" severity="danger" (onClick)="deleteTransaction(t.id)" />
+                }
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    }
+
+    @if (cashFlow()!.transactions.length === 0) {
+      <div class="empty-state">
+        <span class="pi pi-inbox" style="font-size: 2rem; color: #545C73"></span>
+        <p>Nenhum lançamento neste mês.</p>
+        <p-button label="Adicionar primeiro lançamento" icon="pi pi-plus" [text]="true" (onClick)="openCreate()" />
+      </div>
+    }
+  }
+
+  @if (loading()) {
+    <div class="loading-overlay">
+      <span class="pi pi-spin pi-spinner" style="font-size: 2rem"></span>
+    </div>
+  }
+</div>
