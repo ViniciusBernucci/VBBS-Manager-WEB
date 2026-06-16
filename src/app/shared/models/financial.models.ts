@@ -110,13 +110,32 @@ export const EXPENSE_CATEGORIES: { label: string; value: CashFlowCategory }[] = 
   { label: 'Outras Saídas', value: 'OtherExpense' },
 ];
 
-export interface DailySalesResponse {
+export interface DailySalesDailyPoint {
   date: string;
   totalSales: number;
   grossRevenue: number;
   netRevenue: number;
   hotmartFeeAmount: number;
-  lastSyncedAt: string;
+}
+
+export interface DailySalesOverviewResponse {
+  since: string;
+  until: string;
+  hasData: boolean;
+  totalSales: number;
+  totalGrossRevenue: number;
+  totalNetRevenue: number;
+  totalHotmartFeeAmount: number;
+  lastSyncedAt: string | null;
+  dailyStats: DailySalesDailyPoint[];
+}
+
+export interface DailySalesSyncResponse {
+  daysSynced: number;
+  totalSales: number;
+  since: string;
+  until: string;
+  message: string;
 }
 
 export const MONTH_NAMES = [

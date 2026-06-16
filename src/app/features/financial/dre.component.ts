@@ -36,7 +36,7 @@ export class DreComponent implements OnInit {
     const weeks = this.dre()?.weeklyEvolution ?? [];
     if (!weeks.length) return null;
     return {
-      labels: weeks.map((w) => this.formatWeekLabel(w.date)),
+      labels: weeks.map((_, i) => `Sem. ${String(i + 1).padStart(2, '0')}`),
       datasets: [
         {
           label: 'Receita',
@@ -181,8 +181,4 @@ export class DreComponent implements OnInit {
       .reduce((s, l) => s + Math.abs(l.amount), 0);
   }
 
-  private formatWeekLabel(iso: string): string {
-    const [, , d] = iso.split('-');
-    return `D${d}`;
-  }
 }

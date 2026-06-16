@@ -4,7 +4,8 @@ import { environment } from '../../../environments/environment';
 import {
   CashFlowResponse,
   CreateTransactionRequest,
-  DailySalesResponse,
+  DailySalesOverviewResponse,
+  DailySalesSyncResponse,
   DreResponse,
   FixedExpense,
   MonthlyFixedExpense,
@@ -83,15 +84,15 @@ export class FinancialService {
     );
   }
 
-  getDailySales() {
-    return this.http.get<DailySalesResponse | null>(
-      `${environment.apiUrl}/financial/daily-sales`
+  getDailySales(since: string, until: string) {
+    return this.http.get<DailySalesOverviewResponse>(
+      `${environment.apiUrl}/financial/daily-sales?since=${since}&until=${until}`
     );
   }
 
-  syncDailySales() {
-    return this.http.post<DailySalesResponse>(
-      `${environment.apiUrl}/financial/daily-sales/sync`, {}
+  syncDailySales(year: number, month: number) {
+    return this.http.post<DailySalesSyncResponse>(
+      `${environment.apiUrl}/financial/daily-sales/sync`, { year, month }
     );
   }
 }

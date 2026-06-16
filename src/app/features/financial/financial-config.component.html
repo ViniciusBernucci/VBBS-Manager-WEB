@@ -1,0 +1,223 @@
+<p-toast />
+
+<div class="config-page">
+  <div class="config-header">
+    <div>
+      <h2>Configurações Financeiras</h2>
+      <p>Taxas, percentuais e custos fixos usados no DRE e no sync da Hotmart.</p>
+    </div>
+    <p-button
+      label="Salvar"
+      icon="pi pi-check"
+      (onClick)="save()"
+      [loading]="saving()"
+    />
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
+  } @else {
+
+    <!-- ── SEÇÃO: HOTMART ────────────────────────────────────────── -->
+    <div class="config-section">
+      <div class="section-title">
+        <i class="pi pi-shopping-cart"></i> Hotmart — Taxas da plataforma
+      </div>
+      <div class="section-hint">
+        Usados no cálculo da taxa real por venda durante o sync. Altere aqui e execute um novo sync para recalcular.
+      </div>
+
+      <div class="fields-grid">
+        <div class="field-card">
+          <label>Taxa variável (%)</label>
+          <p-inputnumber
+            [ngModel]="form().hotmartFeePercent * 100"
+            (ngModelChange)="set('hotmartFeePercent', $event / 100)"
+            suffix="%" [minFractionDigits]="1" [maxFractionDigits]="2"
+            styleClass="w-full"
+          />
+          <span class="field-hint">Padrão negociado: 8,4%</span>
+        </div>
+
+        <div class="field-card">
+          <label>Taxa fixa por venda (R$)</label>
+          <p-inputnumber
+            [ngModel]="form().hotmartFixedFeePerTransaction"
+            (ngModelChange)="set('hotmartFixedFeePerTransaction', $event)"
+            prefix="R$ " [minFractionDigits]="2" [maxFractionDigits]="4"
+            styleClass="w-full"
+          />
+          <span class="field-hint">Padrão: R$ 0,54 por transação</span>
+        </div>
+
+        <div class="field-card">
+          <label>% Vendas parceladas (estimado)</label>
+          <p-inputnumber
+            [ngModel]="form().installmentSalesPercent * 100"
+            (ngModelChange)="set('installmentSalesPercent', $event / 100)"
+            suffix="%" [minFractionDigits]="0" [maxFractionDigits]="1"
+            styleClass="w-full"
+          />
+          <span class="field-hint">Para estimar custo de antecipação</span>
+        </div>
+
+        <div class="field-card">
+          <label>Taxa de antecipação cartão (%)</label>
+          <p-inputnumber
+            [ngModel]="form().installmentFeePercent * 100"
+            (ngModelChange)="set('installmentFeePercent', $event / 100)"
+            suffix="%" [minFractionDigits]="2" [maxFractionDigits]="2"
+            styleClass="w-full"
+          />
+          <span class="field-hint">Padrão Hotmart: 2,19%</span>
+        </div>
+      </div>
+    </div>
+
+    <p-divider />
+
+    <!-- ── SEÇÃO: IMPOSTOS / DEDUÇÕES ───────────────────────────── -->
+    <div class="config-section">
+      <div class="section-title">
+        <i class="pi pi-percentage"></i> Impostos e deduções estimadas
+      </div>
+      <div class="section-hint">
+        Usados no DRE quando não há lançamento manual de impostos no Fluxo de Caixa.
+      </div>
+
+      <div class="fields-grid">
+        <div class="field-card">
+          <label>Imposto federal (%)</label>
+          <p-inputnumber
+            [ngModel]="form().federalTaxPercent * 100"
+            (ngModelChange)="set('federalTaxPercent', $event / 100)"
+            suffix="%" [minFractionDigits]="1" [maxFractionDigits]="2"
+            styleClass="w-full"
+          />
+          <span class="field-hint">Simples Nacional: ~6%</span>
+        </div>
+
+        <div class="field-card">
+          <label>Taxa de reembolsos (%)</label>
+          <p-inputnumber
+            [ngModel]="form().refundRatePercent * 100"
+            (ngModelChange)="set('refundRatePercent', $event / 100)"
+            suffix="%" [minFractionDigits]="1" [maxFractionDigits]="2"
+            styleClass="w-full"
+          />
+          <span class="field-hint">% estimado sobre o faturamento bruto</span>
+        </div>
+
+        <div class="field-card">
+          <label>Imposto Meta Ads (%)</label>
+          <p-inputnumber
+            [ngModel]="form().metaAdsTaxPercent * 100"
+            (ngModelChange)="set('metaAdsTaxPercent', $event / 100)"
+            suffix="%" [minFractionDigits]="0" [maxFractionDigits]="1"
+            styleClass="w-full"
+          />
+          <span class="field-hint">ISS/PIS/COFINS sobre gasto de tráfego: ~10%</span>
+        </div>
+      </div>
+    </div>
+
+    <p-divider />
+
+    <!-- ── SEÇÃO: CUSTOS FIXOS ───────────────────────────────────── -->
+    <div class="config-section">
+      <div class="section-title">
+        <i class="pi pi-building"></i> Custos fixos mensais
+      </div>
+      <div class="section-hint">
+        Usados como referência no DRE do Planejamento. Para o DRE real, cadastre os gastos em <strong>Contas a Pagar</strong>.
+      </div>
+
+      <div class="fields-grid">
+        <div class="field-card">
+          <label>Contabilidade (R$/mês)</label>
+          <p-inputnumber
+            [ngModel]="form().accountingCost"
+            (ngModelChange)="set('accountingCost', $event)"
+            prefix="R$ " [minFractionDigits]="2"
+            styleClass="w-full"
+          />
+        </div>
+
+        <div class="field-card">
+          <label>Emissão de NF (R$/mês)</label>
+          <p-inputnumber
+            [ngModel]="form().invoicingCost"
+            (ngModelChange)="set('invoicingCost', $event)"
+            prefix="R$ " [minFractionDigits]="2"
+            styleClass="w-full"
+          />
+        </div>
+
+        <div class="field-card">
+          <label>Manychat (R$/mês)</label>
+          <p-inputnumber
+            [ngModel]="form().manychatCost"
+            (ngModelChange)="set('manychatCost', $event)"
+            prefix="R$ " [minFractionDigits]="2"
+            styleClass="w-full"
+          />
+        </div>
+
+        <div class="field-card">
+          <label>Hotmart Player (R$/mês)</label>
+          <p-inputnumber
+            [ngModel]="form().hotmartPlayerCost"
+            (ngModelChange)="set('hotmartPlayerCost', $event)"
+            prefix="R$ " [minFractionDigits]="2"
+            styleClass="w-full"
+          />
+        </div>
+      </div>
+    </div>
+
+    <p-divider />
+
+    <!-- ── SEÇÃO: METAS DE PLANEJAMENTO ─────────────────────────── -->
+    <div class="config-section">
+      <div class="section-title">
+        <i class="pi pi-chart-line"></i> Metas de Planejamento
+      </div>
+      <div class="section-hint">
+        Valores de referência usados nas projeções e no DRE do Planejamento.
+      </div>
+
+      <div class="fields-grid">
+        <div class="field-card">
+          <label>Faturamento bruto meta (R$/mês)</label>
+          <p-inputnumber
+            [ngModel]="form().monthlyGrossRevenue"
+            (ngModelChange)="set('monthlyGrossRevenue', $event)"
+            prefix="R$ " [minFractionDigits]="2"
+            styleClass="w-full"
+          />
+        </div>
+
+        <div class="field-card">
+          <label>Verba de tráfego meta (R$/mês)</label>
+          <p-inputnumber
+            [ngModel]="form().monthlyAdSpend"
+            (ngModelChange)="set('monthlyAdSpend', $event)"
+            prefix="R$ " [minFractionDigits]="2"
+            styleClass="w-full"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="config-actions">
+      <p-button
+        label="Salvar configurações"
+        icon="pi pi-check"
+        (onClick)="save()"
+        [loading]="saving()"
+        size="large"
+      />
+    </div>
+
+  }
+</div>

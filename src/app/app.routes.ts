@@ -66,6 +66,13 @@ export const routes: Routes = [
                 (m) => m.ContasAPagarComponent
               ),
           },
+          {
+            path: 'configuracoes',
+            loadComponent: () =>
+              import('./features/financial/financial-config.component').then(
+                (m) => m.FinancialConfigComponent
+              ),
+          },
         ],
       },
       {

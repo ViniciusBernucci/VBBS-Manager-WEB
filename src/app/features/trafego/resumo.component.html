@@ -1,18 +1,9 @@
+<p-toast />
+
 <div class="page">
 
-  <!-- Filters -->
+  <!-- Filters Bar -->
   <div class="filters-bar">
-    <div class="filter-group">
-      <label class="filter-label">Campanha</label>
-      <p-select
-        [options]="campaigns"
-        [(ngModel)]="selectedCampaignValue"
-        optionLabel="label"
-        optionValue="value"
-        styleClass="filter-select"
-      />
-    </div>
-
     <div class="filter-group">
       <label class="filter-label">Período</label>
       <p-select
@@ -34,101 +25,262 @@
           placeholder="Selecionar período"
           dateFormat="dd/mm/yy"
           styleClass="filter-datepicker"
+          (onSelect)="applyCustomRange()"
         />
       </div>
     }
 
-    <div class="filter-summary">
-      <span class="summary-item">
-        <i class="pi pi-money-bill"></i>
-        {{ brl(totalSpend) }} investido
-      </span>
-      <span class="summary-divider">·</span>
-      <span class="summary-item">
-        <i class="pi pi-shopping-cart"></i>
-        {{ totalConversions }} conversões
-      </span>
-    </div>
-  </div>
+    @if (availableCampaigns().length > 1) {
+      <div class="filter-group">
+        <label class="filter-label">Campanha</label>
+        <p-multiselect
+          [options]="availableCampaigns()"
+          [(ngModel)]="selectedCampaignIdsValue"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Todas as campanhas"
+          selectedItemsLabel="{0} campanhas"
+          styleClass="filter-select"
+          [maxSelectedLabels]="1"
+          [showClear]="true"
+        />
+      </div>
+    }
 
-  <!-- KPIs -->
-  <div class="kpi-row">
-    @for (kpi of kpis(); track kpi.label) {
-      <div class="kpi-card">
-        <span class="kpi-label">{{ kpi.label }}</span>
-        <span class="kpi-value">{{ kpi.value }}</span>
-        <span class="kpi-trend" [class]="trendClass(kpi)">
-          <i [class]="trendIcon(kpi)"></i>
-          {{ kpi.delta }} &nbsp;vs {{ kpi.previous }}
+    @if (data()?.hasData) {
+      <div class="filter-summary">
+        <span class="summary-item">
+          <i class="pi pi-money-bill"></i>
+          {{ brl(data()!.kpis.totalSpend) }} investido
+        </span>
+        <span class="summary-divider">·</span>
+        <span class="summary-item">
+          <i class="pi pi-check-circle"></i>
+          {{ data()!.kpis.totalConversions }} resultados
         </span>
       </div>
     }
+
+    <div class="filter-actions">
+      <p-button
+        icon="pi pi-refresh"
+        label="Atualizar dados"
+        severity="secondary"
+        size="small"
+        [loading]="loading()"
+        (onClick)="loadData()"
+      />
+      <p-button
+        icon="pi pi-cloud-download"
+        label="Sincronizar mês"
+        size="small"
+        (onClick)="openSyncDialog()"
+      />
+    </div>
   </div>
 
-  <!-- Charts -->
-  <div class="charts-grid">
-    <div class="chart-card">
-      <div class="chart-title">Gasto vs Vendas — últimos 7 dias</div>
-      <div class="chart-container">
-        <p-chart type="line" [data]="dailyChartData" [options]="dailyChartOptions" height="240" />
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Carregando dados de tráfego...</span>
+    </div>
+  }
+
+  <!-- No Data -->
+  @if (!loading() && !data()?.hasData) {
+    <div class="empty-state">
+      <i class="pi pi-chart-bar"></i>
+      <span>Nenhum dado no período selecionado.</span>
+      <p-button label="Sincronizar dados" icon="pi pi-cloud-download" (onClick)="openSyncDialog()" />
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && data()?.hasData) {
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <span class="kpi-label">Custo por resultado</span>
+        <span class="kpi-value">{{ brl(data()!.kpis.cpa) }}</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Resultados</span>
+        <span class="kpi-value">{{ data()!.kpis.totalConversions }}</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Frequência média</span>
+        <span class="kpi-value">{{ data()!.kpis.avgFrequency.toFixed(2) }}</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">CTR médio</span>
+        <span class="kpi-value">{{ data()!.kpis.avgCtr.toFixed(2) }}%</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">CPM</span>
+        <span class="kpi-value">{{ brl(data()!.kpis.avgCpm) }}</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Valor usado</span>
+        <span class="kpi-value">{{ brl(data()!.kpis.totalSpend) }}</span>
       </div>
     </div>
 
-    <div class="chart-card">
-      <div class="chart-title">CTR por criativo</div>
-      <div class="chart-container">
-        <p-chart type="bar" [data]="ctrChartData" [options]="ctrChartOptions" height="240" />
+    <!-- Charts -->
+    @if (dailyChartData()) {
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">Gasto vs Vendas por dia</div>
+          <div class="chart-container">
+            <p-chart type="line" [data]="dailyChartData()" [options]="dailyChartOptions" height="240" />
+          </div>
+        </div>
+
+        @if (ctrChartData()) {
+          <div class="chart-card">
+            <div class="chart-title">CTR por criativo (top 8)</div>
+            <div class="chart-container">
+              <p-chart type="bar" [data]="ctrChartData()" [options]="ctrChartOptions" height="240" />
+            </div>
+          </div>
+        }
       </div>
-    </div>
-  </div>
+    }
 
-  <!-- Creative Table -->
-  <div class="section-header">
-    <span class="section-title">Performance por Criativo</span>
-    <span class="section-hint">Thresholds: CPA &lt; R$45 = bom · Frequência &gt; 3 = atenção</span>
-  </div>
+    <!-- Campaigns Table -->
+    @if (data()!.campaigns.length) {
+      <div class="section-header">
+        <span class="section-title">Campanhas</span>
+      </div>
+      <div class="creative-table-wrap">
+        <p-table [value]="data()!.campaigns" styleClass="p-datatable-sm creative-table">
+          <ng-template #header>
+            <tr>
+              <th>Campanha</th>
+              <th class="col-num">Valor usado</th>
+              <th class="col-num">Resultados</th>
+              <th class="col-num">Custo/resultado</th>
+              <th class="col-num">CTR</th>
+              <th class="col-num">CPM</th>
+              <th class="col-num">Freq.</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-c>
+            <tr>
+              <td class="creative-name">{{ c.campaignName }}</td>
+              <td class="mono">{{ brl(c.spend) }}</td>
+              <td class="mono">{{ c.conversions }}</td>
+              <td class="mono"
+                [class.pos]="c.cpa < 45"
+                [class.warn]="c.cpa >= 45 && c.cpa < 70"
+                [class.neg]="c.cpa >= 70">
+                {{ brl(c.cpa) }}
+              </td>
+              <td class="mono">{{ c.ctr.toFixed(2) }}%</td>
+              <td class="mono">{{ brl(c.cpm) }}</td>
+              <td class="mono"
+                [class.warn]="c.frequency >= 3 && c.frequency < 4"
+                [class.neg]="c.frequency >= 4">
+                {{ c.frequency.toFixed(2) }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    }
 
-  <div class="creative-table-wrap">
-    <p-table [value]="creatives" styleClass="p-datatable-sm creative-table">
-      <ng-template #header>
-        <tr>
-          <th>Criativo</th>
-          <th class="col-num">Gasto</th>
-          <th class="col-num">Vendas</th>
-          <th class="col-num">CPA</th>
-          <th class="col-num">CTR</th>
-          <th class="col-num">CPM</th>
-          <th class="col-num">Freq.</th>
-          <th class="col-status">Status</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-c>
-        <tr>
-          <td class="creative-name">{{ c.name }}</td>
-          <td class="mono">{{ brl(c.spend) }}</td>
-          <td class="mono">{{ c.conversions }}</td>
-          <td class="mono"
-            [class.pos]="c.cpa < 45"
-            [class.warn]="c.cpa >= 45 && c.cpa < 55"
-            [class.neg]="c.cpa >= 55">
-            {{ brl(c.cpa) }}
-          </td>
-          <td class="mono">{{ c.ctr.toFixed(2) }}%</td>
-          <td class="mono">{{ brl(c.cpm) }}</td>
-          <td class="mono"
-            [class.warn]="c.frequency >= 3 && c.frequency < 4"
-            [class.neg]="c.frequency >= 4">
-            {{ c.frequency.toFixed(1) }}
-          </td>
-          <td>
-            <p-tag
-              [value]="statusConfig[c.status].label"
-              [severity]="statusConfig[c.status].severity"
-            />
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
-
+    <!-- Ads Table -->
+    @if (data()!.ads.length) {
+      <div class="section-header">
+        <span class="section-title">Performance por Criativo (Anúncios)</span>
+        <span class="section-hint">Thresholds: Custo/resultado &lt; R$45 = bom · &lt; R$70 = atenção · Frequência &gt; 3 = atenção</span>
+      </div>
+      <div class="creative-table-wrap">
+        <p-table [value]="data()!.ads" styleClass="p-datatable-sm creative-table">
+          <ng-template #header>
+            <tr>
+              <th>Criativo</th>
+              <th>Conjunto</th>
+              <th class="col-num">Valor usado</th>
+              <th class="col-num">Resultados</th>
+              <th class="col-num">Custo/resultado</th>
+              <th class="col-num">CTR</th>
+              <th class="col-num">CPM</th>
+              <th class="col-num">Freq.</th>
+              <th class="col-status">Status</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-a>
+            <tr>
+              <td class="creative-name">{{ a.adName }}</td>
+              <td class="creative-name muted">{{ a.adSetName }}</td>
+              <td class="mono">{{ brl(a.spend) }}</td>
+              <td class="mono">{{ a.conversions }}</td>
+              <td class="mono"
+                [class.pos]="a.cpa < 45"
+                [class.warn]="a.cpa >= 45 && a.cpa < 70"
+                [class.neg]="a.cpa >= 70">
+                {{ brl(a.cpa) }}
+              </td>
+              <td class="mono">{{ a.ctr.toFixed(2) }}%</td>
+              <td class="mono">{{ brl(a.cpm) }}</td>
+              <td class="mono"
+                [class.warn]="a.frequency >= 3 && a.frequency < 4"
+                [class.neg]="a.frequency >= 4">
+                {{ a.frequency.toFixed(2) }}
+              </td>
+              <td>
+                <p-tag
+                  [value]="statusConfig[a.status].label"
+                  [severity]="statusConfig[a.status].severity"
+                />
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    }
+  }
 </div>
+
+<!-- Sync Dialog -->
+<p-dialog
+  header="Sincronizar dados de tráfego"
+  [(visible)]="syncDialogVisible"
+  [modal]="true"
+  [style]="{ width: '420px' }"
+  [closable]="!syncing()"
+>
+  <div class="sync-dialog-body">
+    <p class="sync-description">
+      Selecione o mês para sincronizar. Os dados existentes do período serão substituídos pelos dados atuais da Meta API.
+    </p>
+
+    <div class="filter-group" style="margin-top: 1rem;">
+      <label class="filter-label">Mês</label>
+      <p-select
+        [options]="syncMonths()"
+        [(ngModel)]="syncMonthValue"
+        optionLabel="label"
+        styleClass="filter-select"
+        [style]="{ width: '100%' }"
+      />
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [disabled]="syncing()"
+      (onClick)="closeSyncDialog()"
+    />
+    <p-button
+      label="Sincronizar"
+      icon="pi pi-cloud-download"
+      [loading]="syncing()"
+      [disabled]="!selectedSyncMonth()"
+      (onClick)="confirmSync()"
+    />
+  </ng-template>
+</p-dialog>

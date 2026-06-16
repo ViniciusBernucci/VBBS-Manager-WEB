@@ -4,61 +4,138 @@
 
   <div class="page-header">
     <div class="header-left">
-      <h2 class="page-title">Resumo do dia</h2>
-      @if (data(); as d) {
+      <h2 class="page-title">Vendas Hotmart</h2>
+      @if (data()?.lastSyncedAt; as ts) {
         <span class="sync-info">
           <i class="pi pi-check-circle"></i>
-          Sincronizado às {{ formatTime(d.lastSyncedAt) }} · {{ formatDate(d.date) }}
+          Último sync às {{ formatTime(ts) }}
         </span>
       }
     </div>
 
-    <p-button
-      label="Atualizar dados de vendas"
-      icon="pi pi-refresh"
-      [loading]="syncing()"
-      [disabled]="loading()"
-      (onClick)="sync()"
-    />
+    <div class="header-actions">
+      <p-select
+        [options]="dateRanges"
+        [(ngModel)]="selectedRangeValue"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="period-select"
+      />
+
+      @if (isCustomRange()) {
+        <p-datepicker
+          [(ngModel)]="customDateRange"
+          selectionMode="range"
+          [readonlyInput]="true"
+          dateFormat="dd/mm/yy"
+          placeholder="Selecione o período"
+          (onClose)="applyCustomRange()"
+        />
+      }
+
+      <p-button
+        label="Sincronizar"
+        icon="pi pi-refresh"
+        [loading]="syncing()"
+        [disabled]="loading()"
+        (onClick)="openSyncDialog()"
+      />
+    </div>
   </div>
 
   @if (loading()) {
     <div class="loading-state">
       <i class="pi pi-spin pi-spinner"></i>
-      Carregando dados do dia...
+      Carregando dados de vendas...
     </div>
   } @else if (!data()) {
     <div class="empty-state">
       <i class="pi pi-chart-bar"></i>
-      <p>Nenhum dado sincronizado hoje.</p>
-      <p class="hint">Clique em "Atualizar dados de vendas" para buscar os dados atuais da Hotmart.</p>
+      <p>Nenhum dado carregado ainda.</p>
+      <p class="hint">Clique em "Sincronizar" para buscar os dados da Hotmart.</p>
     </div>
   } @else {
     <div class="kpi-row">
       <div class="kpi-card">
-        <span class="kpi-label">Vendas do dia</span>
-        <span class="kpi-value">{{ data()!.totalSales }}</span>
+        <span class="kpi-label">Vendas no período</span>
+        <span class="kpi-value">{{ data()!.totalSales ?? 0 }}</span>
         <span class="kpi-note">unidades vendidas</span>
       </div>
 
       <div class="kpi-card highlight">
         <span class="kpi-label">Faturamento bruto</span>
-        <span class="kpi-value">{{ brl(data()!.grossRevenue) }}</span>
+        <span class="kpi-value">{{ brl(data()!.totalGrossRevenue ?? 0) }}</span>
         <span class="kpi-note">receita total Hotmart</span>
       </div>
 
       <div class="kpi-card positive">
         <span class="kpi-label">Receita líquida</span>
-        <span class="kpi-value">{{ brl(data()!.netRevenue) }}</span>
+        <span class="kpi-value">{{ brl(data()!.totalNetRevenue ?? 0) }}</span>
         <span class="kpi-note">após taxa Hotmart</span>
       </div>
 
       <div class="kpi-card">
         <span class="kpi-label">Taxa Hotmart</span>
-        <span class="kpi-value negative">{{ brl(data()!.hotmartFeeAmount) }}</span>
+        <span class="kpi-value negative">{{ brl(data()!.totalHotmartFeeAmount ?? 0) }}</span>
         <span class="kpi-note">comissão deduzida</span>
       </div>
     </div>
+
+    @if (!data()!.hasData) {
+      <div class="no-data-banner">
+        <i class="pi pi-info-circle"></i>
+        Nenhuma venda sincronizada neste período. Use o botão <strong>Sincronizar</strong> para importar os dados do mês desejado.
+      </div>
+    }
+
+    @if (dailyChartData()) {
+      <div class="chart-card">
+        <h3 class="chart-title">Faturamento diário</h3>
+        <div class="chart-wrapper">
+          <p-chart type="line" [data]="dailyChartData()" [options]="dailyChartOptions" />
+        </div>
+      </div>
+    }
   }
 
 </div>
+
+<!-- Diálogo de sincronização -->
+<p-dialog
+  header="Sincronizar vendas Hotmart"
+  [(visible)]="syncDialogVisible"
+  [modal]="true"
+  [style]="{ width: '420px' }"
+  [draggable]="false"
+>
+  <div class="sync-dialog-body">
+    <p class="sync-dialog-info">
+      Selecione o mês para buscar e sobrescrever os dados de vendas da Hotmart.
+    </p>
+
+    <p-select
+      [options]="syncMonths()"
+      [(ngModel)]="syncMonthValue"
+      optionLabel="label"
+      placeholder="Selecione o mês"
+      styleClass="sync-month-select"
+    />
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      severity="secondary"
+      [text]="true"
+      (onClick)="closeSyncDialog()"
+    />
+    <p-button
+      label="Sincronizar"
+      icon="pi pi-refresh"
+      [loading]="syncing()"
+      [disabled]="!selectedSyncMonth()"
+      (onClick)="confirmSync()"
+    />
+  </ng-template>
+</p-dialog>

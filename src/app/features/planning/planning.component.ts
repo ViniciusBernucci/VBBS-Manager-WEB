@@ -59,7 +59,8 @@ export class PlanningComponent implements OnInit {
   readonly editConfig = signal<UpdateFinancialConfigRequest>({
     monthlyGrossRevenue: 12370,
     monthlyAdSpend: 8000,
-    hotmartFeePercent: 0.09,
+    hotmartFeePercent: 0.084,
+    hotmartFixedFeePerTransaction: 0.54,
     installmentFeePercent: 0.0219,
     installmentSalesPercent: 0.33,
     federalTaxPercent: 0.06,

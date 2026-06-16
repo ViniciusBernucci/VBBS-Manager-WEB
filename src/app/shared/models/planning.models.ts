@@ -35,6 +35,7 @@ export interface FinancialConfig {
   monthlyGrossRevenue: number;
   monthlyAdSpend: number;
   hotmartFeePercent: number;
+  hotmartFixedFeePerTransaction: number;
   installmentFeePercent: number;
   installmentSalesPercent: number;
   federalTaxPercent: number;
@@ -50,6 +51,7 @@ export interface UpdateFinancialConfigRequest {
   monthlyGrossRevenue: number;
   monthlyAdSpend: number;
   hotmartFeePercent: number;
+  hotmartFixedFeePerTransaction: number;
   installmentFeePercent: number;
   installmentSalesPercent: number;
   federalTaxPercent: number;
